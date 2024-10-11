@@ -1,0 +1,32 @@
+{
+  "name": "tuxstrap",
+  "version": "1.0.0",
+  "description": "A commandline launcher for Roblox on Linux",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun src/index.ts",
+    "build": "mkdir -p dist && bun build --compile src/index.ts src/features/* --outfile dist/tuxstrap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocbwoy3/tuxstrap.git"
+  },
+  "author": "OCbwoy3",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ocbwoy3/tuxstrap/issues"
+  },
+  "homepage": "https://github.com/ocbwoy3/tuxstrap#readme",
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@types/commander": "^2.12.0",
+    "@types/discord-rpc": "^4.0.8",
+    "@types/figlet": "^1.7.0",
+    "commander": "^12.1.0",
+    "discord-rpc": "^4.0.1",
+    "figlet": "^1.8.0"
+  }
+}
