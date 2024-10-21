@@ -63,7 +63,7 @@ if (options.background) {
 	console.log("[INIT]","Process argv:",process.argv.join(" "));
 	const procargv = process.argv.join(" ").replace("--background","")
 	if (process.env.HYPRLAND_INSTANCE_SIGNATURE) {
-		console.log("[INIT]","Running with hyprctl");
+		console.log("[INIT]","Detected HYPRLAND_INSTANCE_SIGNATURE - Executing in background");
 		spawn("hyprctl",["dispatch","exec",procargv]);
 		process.exit(0);
 	}
@@ -100,16 +100,24 @@ child.on('exit',(code)=>{
 (async()=>{
 	opts.useFeatures.map((v:string)=>`features/${v}`).forEach((m:string)=>{
 		try {
-			require(`${__dirname}/${m}`)
-			console.log("[INIT]",`Successfully loaded ${m}`)
+			require(`${__dirname}/${m}`);
+			console.log("[INIT]",`Successfully loaded ${m}`);
 		} catch (e_) {
 			if (`${e_}`.includes("find module")) {
 				console.error("[INIT]",`Feature ${m} doesn't exist`)			
+				if (opts.showNotifications) exec(`notify-send -a "tuxstrap" -u low "Roblox" "Cannot find ${m}"`);
 			} else {
 				console.error("[INIT]",`Failed to load ${m}:`,e_)
+				if (opts.showNotifications) exec(`notify-send -a "tuxstrap" -u low "Roblox" "Error loading ${m}"`);
 			}
 		}
 	})
 })()
+
+if (opts.showNotifications) {
+	setTimeout(() => {
+		exec(`notify-send -a "tuxstrap" -u low "Roblox" "Hello, World!"`);
+	}, 1000);
+}
 
 watcher.stdoutWatcher();

@@ -7,21 +7,18 @@ pkgs.stdenv.mkDerivation {
 	version = "1.0.0";
 
 	# Source code
-	src = pkgs.fetchgit {
-		url = "https://github.com/ocbwoy3/tuxstrap";
-		rev = "main";
-	};
+	src = ./.;
 
-	buildInputs = [ pkgs.bun pkgs.npm ];
+	buildInputs = [ pkgs.bun pkgs.nodejs pkgs.nodePackages.npm ];
 	buildPhase = ''
-	npm run build
+	npm i
+	bun build --minify --compile src/ --outfile dist/tuxstrap
 	'';
 
 	installPhase = ''
 	mkdir -p $out
-	mkdir -p $out/usr
-	mkdir -p $out/usr/bin
-	cp -r dist/* $out/usr/bin/
+	mkdir -p $out/bin
+	cp -r dist/* $out/bin/
 	'';
 
 	meta = {

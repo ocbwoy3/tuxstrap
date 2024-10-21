@@ -146,6 +146,7 @@ export class ActivityWatcher {
 			}
 		} else if (this.ActivityInGame && this.ActivityPlaceId !== 0) {
 			if (line.includes(GameDisconnectedEntry)) {
+				this.BloxstrapRPCEvent.emit("OnGameLeave");
 				console.log("[ActivityWatcher]", `Disconnected from Game (${this.ActivityPlaceId}/${this.ActivityJobId}/${this.ActivityMachineAddress})`);
 
 				this.ActivityInGame = false;
@@ -159,12 +160,14 @@ export class ActivityWatcher {
 				this.BloxstrapRPCEvent.emit("OnGameLeave")
 				// OnGameLeave?.Invoke(this, new EventArgs());
 			}  else if (line.includes(GameTeleportingEntry)) {
+				this.BloxstrapRPCEvent.emit("OnTeleportInit");
 				console.log("[ActivityWatcher]", `Initiating teleport to server (${this.ActivityPlaceId}/${this.ActivityJobId}/${this.ActivityMachineAddress})`);
 				this._teleportMarker = true;
 				if (this.options.showNotifications) exec(`notify-send -i ${path.join(__dirname,"..","assets/roblox.png")} -a "tuxstrap" -u low "Teleport Warning" "${(await GetPlaceDetails(await GetUniverseId(this.ActivityPlaceId))).name.replace("$","\\$").replace("\"","\\\"").replace("\n","\\n")} is teleporting you to another server."`);
 			} else if (this._teleportMarker && line.includes(GameJoiningReservedServerEntry)) {
 				this._reservedTeleportMarker = true;
-				if (this.options.showNotifications) exec(`notify-send -i ${path.join(__dirname,"..","assets/roblox.png")} -a "tuxstrap" -u low "Teleport Warning" "${(await GetPlaceDetails(await GetUniverseId(this.ActivityPlaceId))).name.replace("$","\\$").replace("\"","\\\"").replace("\n","\\n")} is teleporting you to a reserved server."`);
+				this.BloxstrapRPCEvent.emit("OnTeleportJoin");
+				// if (this.options.showNotifications) exec(`notify-send -i ${path.join(__dirname,"..","assets/roblox.png")} -a "tuxstrap" -u low "Teleporting" "${(await GetPlaceDetails(await GetUniverseId(this.ActivityPlaceId))).name.replace("$","\\$").replace("\"","\\\"").replace("\n","\\n")} is teleporting you to a reserved server."`);
 			} else if (line.includes(GameMessageEntry)) {
 				const match: RegExpMatchArray = line.match(GameMessageEntryPattern) as RegExpMatchArray;
 				match.splice(0,1)

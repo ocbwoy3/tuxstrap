@@ -4,8 +4,8 @@
   "description": "A commandline launcher for Roblox on Linux",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "bun src/index.ts",
-    "build": "mkdir -p dist && bun build --compile src/index.ts src/features/* --outfile dist/tuxstrap"
+    "dev": "bun src/index.ts --gamemode --use-features \"wayland-copy,regretevator-notifications,hyprland-ipc,regretevator-waybar\"",
+    "build": "mkdir -p dist && bun build --minify --compile src/ --outfile dist/tuxstrap"
   },
   "repository": {
     "type": "git",
