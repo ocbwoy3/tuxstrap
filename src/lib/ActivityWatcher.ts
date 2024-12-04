@@ -244,6 +244,8 @@ export class ActivityWatcher {
 		const logHandle = await open(robloxLogfile,'r+');
 		console.log("[ActivityWatcher]",`Obtained r+ logfile handle: ${robloxLogfile}`)
 
+		this.BloxstrapRPCEvent.emit("ObtainLog")
+
 		try {
 			let position = 0;
 			let line = ""

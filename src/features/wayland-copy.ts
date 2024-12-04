@@ -14,5 +14,3 @@ PluginEventEmitter.on("WaylandCopy",async(data: any)=>{
 		if (activityWatcher.options.showNotifications) exec(`notify-send -i ${path.join(__dirname,"..","assets/roblox.png")} -u low "Roblox" "${gmfixed} wrote to the Wayland clipboard!"`);
 	}
 })
-
-if (activityWatcher.options.showNotifications) exec(`notify-send -a "tuxstrap" -u low "Roblox" "Loaded: Wayland Clipboard"`);

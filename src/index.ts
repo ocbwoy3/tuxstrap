@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { textSync } from "figlet";
-import { LAUNCH_COMMAND, setActivityWatcherInstance, setBloxstrapRPCInstance, TUXSTRAP_VERSION } from "./lib/Constants";
+import { activityWatcher, LAUNCH_COMMAND, setActivityWatcherInstance, setBloxstrapRPCInstance, TUXSTRAP_VERSION } from "./lib/Constants";
 import { exec, spawn } from "child_process";
 import { ActivityWatcher } from "./lib/ActivityWatcher";
 import { TuxstrapOptions } from "./lib/Types";
@@ -20,6 +20,7 @@ program
 	.option("-s, --silent", "Disable game join and plugin notifications")
 	.option("-v, --verbose", "Shows Roblox's stdout in the log")
 	.option("--background", "Runs the process in the background")
+	.option("--opengl", "Use the OpenGL renderer instead of Vulkan")
 	.argument('[url]','A roblox:// URL for launching a specific game or server (optional)')
 
 program.addHelpText('after',`
@@ -57,7 +58,7 @@ if (options.gamemode === true) { opts.useGamemode = true };
 if (options.verbose === true) { opts.verbose = true };
 
 const URI = program.args[0] || "roblox://";
-const sober_cmd = `${opts.useGamemode ? "gamemoderun " : ""}${LAUNCH_COMMAND}${program.args[0] ? ` "${URI}"` : ""}`
+const sober_cmd = `${opts.useGamemode ? "gamemoderun " : ""}${LAUNCH_COMMAND}${program.args[0] ? ` "${URI}"` : ""}${options.opengl ? " --opengl" : ""}`
 
 if (options.background) {
 	console.log("[INIT]","Process argv:",process.argv.join(" "));
@@ -74,8 +75,11 @@ if (options.background) {
 console.log("[INIT]","Using features:",opts.useFeatures);
 console.log("[INIT]","Sober Launch Command:",sober_cmd);
 
+if (options.opengl) exec(`notify-send -a "tuxstrap" -u low "Roblox" "Using OpenGL renderer"`);
+
 const launch_time = Date.now();
 const child = exec(sober_cmd);
+
 
 const watcher = new ActivityWatcher(child,opts);
 setActivityWatcherInstance(watcher);
@@ -115,9 +119,9 @@ child.on('exit',(code)=>{
 })()
 
 if (opts.showNotifications) {
-	setTimeout(() => {
-		exec(`notify-send -a "tuxstrap" -u low "Roblox" "Hello, World!"`);
-	}, 1000);
+	activityWatcher.BloxstrapRPCEvent.on("ObtainLog",()=>{
+		exec(`notify-send -a tuxstrap -u low "TuxStrap" "Obtained Roblox's logfile"`);
+	})
 }
 
 watcher.stdoutWatcher();
