@@ -21,6 +21,10 @@ bloxstraprpc.aw!.BloxstrapRPCEvent.on("OnGameJoin", () => {
 	floorNumStart = 999999;
 	floorNumEnd = 999999;
 	challengeDone = false;
+	console.log(
+		"[DailyChallenge]",
+		`Detected OnGameJoin`
+	);
 });
 
 PluginEventEmitter.on("SetRichPresence", async (data: any) => {
@@ -47,6 +51,10 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 					if (floorNumStart === 999999) {
 						floorNumStart = f;
 						floorNumEnd = f + numFloors;
+						console.log(
+							"[DailyChallenge]",
+							`Detected Regretevator floor ${floorNumStart}, target floor num: ${floorNumEnd}`
+						);
 						exec(
 							`notify-send -a "tuxstrap" -u low "Regretevator" "Challenge: Survive ${
 								floorNumEnd - floorNumStart
@@ -72,6 +80,10 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 					// exec(`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`);
 				} else if ((data.state as string) === "Lounging in the lobby") {
 					floorNumEnd += numFloorsDeath;
+					console.log(
+						"[DailyChallenge]",
+						`Setting target floor to ${floorNumEnd}`
+					);
 					exec(
 						`notify-send -a "tuxstrap" -u low "Regretevator" "haha im making you do ${numFloorsDeath} more floors >:3"`
 					);
