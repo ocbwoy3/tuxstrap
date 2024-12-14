@@ -1,12 +1,18 @@
-import { activityWatcher, bloxstraprpc, PluginEventEmitter } from "../lib/Constants";
+import {
+	activityWatcher,
+	bloxstraprpc,
+	PluginEventEmitter,
+} from "../lib/Constants";
 import path from "path";
 import { exec } from "child_process";
 import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
 
 let regretevator: boolean = false;
 
-PluginEventEmitter.on("SetRichPresence",async(data: any)=>{
-	const isRegretevator = (await GetUniverseId(activityWatcher.ActivityPlaceId)) === (await GetUniverseId(4972273297));
+PluginEventEmitter.on("SetRichPresence", async (data: any) => {
+	const isRegretevator =
+		(await GetUniverseId(activityWatcher.ActivityPlaceId)) ===
+		(await GetUniverseId(4972273297));
 	// console.log("IsRegretevator",isRegretevator,data)
 	if (isRegretevator) {
 		if (!regretevator) {
@@ -14,18 +20,29 @@ PluginEventEmitter.on("SetRichPresence",async(data: any)=>{
 			exec(`notify-send -a "tuxstrap" -u low "Regretevator" "???????"`);
 		}
 		try {
-			if (bloxstraprpc._stashedRPCMessage?.largeImage?.hoverText === "THE REGRET ELEVATOR" && bloxstraprpc._stashedRPCMessage?.smallImage?.hoverText === "The Axolotl Sun") {
+			if (
+				bloxstraprpc._stashedRPCMessage?.largeImage?.hoverText ===
+					"THE REGRET ELEVATOR" &&
+				bloxstraprpc._stashedRPCMessage?.smallImage?.hoverText ===
+					"The Axolotl Sun"
+			) {
 				if ((data.state as string).match(/^On Floor ([0-9]+)$/)) {
-					const f = (data.state as string).replace(/[a-zA-Z ]*/g,'')
-					exec(`notify-send -a "tuxstrap" -u low "Regretevator" "On Floor ${f}"`);
+					const f = (data.state as string).replace(/[a-zA-Z ]*/g, "");
+					exec(
+						`notify-send -a "tuxstrap" -u low "Regretevator" "On Floor ${f}"`
+					);
 				} else if ((data.state as string) === "Going up!") {
-					exec(`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`);
+					exec(
+						`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`
+					);
 				} else if ((data.state as string) === "Lounging in the lobby") {
-					exec(`notify-send -a "tuxstrap" -u low "Regretevator" "cmon, just one more floor pleaseeeeeee :3"`);
+					exec(
+						`notify-send "OCbwoy3's Dotfiles" "i thought you said you loved playing regretevator :("`
+					);
 				}
 			}
-		} catch(e_) {}
+		} catch (e_) {}
 	} else {
 		regretevator = false;
 	}
-})
+});

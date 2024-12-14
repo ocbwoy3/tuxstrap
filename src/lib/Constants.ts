@@ -20,14 +20,14 @@ export const FFLAGS_ROOT = `${homedir()}/.var/app/org.vinegarhq.Sober/data/sober
 export const DISCORD_APPID = "1005469189907173486";
 export const SMALL_IMAGE_KEY = "roblox";
 
-export const PluginEventEmitter = new EventEmitter()
+export const PluginEventEmitter = new EventEmitter();
 
-export let activityWatcher: ActivityWatcher
+export let activityWatcher: ActivityWatcher;
 export function setActivityWatcherInstance(a: ActivityWatcher) {
-	activityWatcher = a
+	activityWatcher = a;
 }
 
-export let bloxstraprpc: BloxstrapRPC
+export let bloxstraprpc: BloxstrapRPC;
 export function setBloxstrapRPCInstance(a: BloxstrapRPC) {
-	bloxstraprpc = a
+	bloxstraprpc = a;
 }
