@@ -12,7 +12,7 @@ import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
 let regretevator: boolean = false;
 let floorNumStart = 999999;
 let floorNumEnd = 999999;
-let numFloors = 1;
+let numFloors = 50;
 let numFloorsDeath = 5;
 let numFloorsDead = 0;
 let challengeDone: boolean = false;
