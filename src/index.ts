@@ -19,9 +19,9 @@ program
 	.version(TUXSTRAP_VERSION, "--version", "Returns the version of TuxStrap")
 	.description("An alternative Roblox launcher for Linux")
 	.helpOption("-h, --help", "Shows this message")
-	// .option("--disable-plugins", "Disables plugins during launch")
+	// .option("--disable-plugins", "Disables plugins during launch") // WIP
 	.option("--use-features <features>", "Enables experimental features")
-	// .option("--disable-filemods", "Prevent file modifications from being applied")
+	// .option("--disable-filemods", "Prevent file modifications from being applied") // WIP
 	.option(
 		"--gamemode",
 		"Launch Roblox with gamemoderun, possibly improving performance"
@@ -39,7 +39,7 @@ program.addHelpText(
 	"after",
 	`
 Example call:
-  $ tuxstrap --use-features "wayland-copy,regretevator-notifications,hyprland-ipc" "roblox://placeId=4972273297"
+  $ tuxstrap --use-features "wayland-copy,hyprland-ipc" "roblox://placeId=4972273297"
 `
 );
 program.parse(process.argv);

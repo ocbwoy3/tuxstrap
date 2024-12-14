@@ -14,6 +14,9 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 		(await GetUniverseId(activityWatcher.ActivityPlaceId)) ===
 		(await GetUniverseId(4972273297));
 	// console.log("IsRegretevator",isRegretevator,data)
+	const challengeActive =
+		(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE || false;
+	if (challengeActive === true) return;
 	if (isRegretevator) {
 		if (!regretevator) {
 			regretevator = true;
@@ -36,9 +39,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`
 					);
 				} else if ((data.state as string) === "Lounging in the lobby") {
-					exec(
-						`notify-send "OCbwoy3's Dotfiles" "i thought you said you loved playing regretevator :("`
-					);
+					// nothing
 				}
 			}
 		} catch (e_) {}

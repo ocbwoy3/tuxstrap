@@ -12,29 +12,37 @@ import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
 let regretevator: boolean = false;
 let floorNumStart = 999999;
 let floorNumEnd = 999999;
-let numFloors = 50;
+let numFloors = 1;
 let numFloorsDeath = 5;
+let numFloorsDead = 0;
 let challengeDone: boolean = false;
+let dead: boolean = false;
+let activeFloorCount = 0;
 
 bloxstraprpc.aw!.BloxstrapRPCEvent.on("OnGameJoin", () => {
 	regretevator = false;
 	floorNumStart = 999999;
 	floorNumEnd = 999999;
+	numFloorsDead = 0;
 	challengeDone = false;
-	console.log(
-		"[DailyChallenge]",
-		`Detected OnGameJoin`
-	);
+	dead = false;
+	activeFloorCount = 0;
+	(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
+	console.log("[RegretevatorDailyChallenge]", `Detected OnGameJoin`);
 });
+
+(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
 
 PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 	const isRegretevator =
 		(await GetUniverseId(activityWatcher.ActivityPlaceId)) ===
 		(await GetUniverseId(4972273297));
-	// console.log("IsRegretevator",isRegretevator,data)
+
 	if (isRegretevator) {
 		if (!regretevator) {
 			regretevator = true;
+			(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE =
+				!challengeDone;
 		}
 		if (challengeDone) return;
 		try {
@@ -52,8 +60,8 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						floorNumStart = f;
 						floorNumEnd = f + numFloors;
 						console.log(
-							"[DailyChallenge]",
-							`Detected Regretevator floor ${floorNumStart}, target floor num: ${floorNumEnd}`
+							"[RegretevatorDailyChallenge]",
+							`Detected Regretevator, floor ${floorNumStart}, target floor ${floorNumEnd}`
 						);
 						exec(
 							`notify-send -a "tuxstrap" -u low "Regretevator" "Challenge: Survive ${
@@ -62,36 +70,51 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						);
 						return;
 					}
-					if (f === floorNumEnd) {
+					if (!dead) {
+						activeFloorCount++;
+					}
+					if (activeFloorCount === numFloors) {
 						challengeDone = true;
+						(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE =
+							false;
 						exec(
-							`notify-send -a "tuxstrap" -u low "Regretevator" "You survived ${
-								floorNumEnd - floorNumStart
-							}" floors, congrats!`
+							`notify-send -a "tuxstrap" -u low "Regretevator" "You survived ${numFloors} floors, congrats! :3"`
+						);
+						console.log(
+							"[RegretevatorDailyChallenge]",
+							`Finished challenge, floors survived: ${numFloors}`
 						);
 						return;
 					}
+					console.log(
+						"[RegretevatorDailyChallenge]",
+						`On floor ${f}, active floor ${activeFloorCount}/${numFloors}`
+					);
 					exec(
-						`notify-send -a "tuxstrap" -u low "Regretevator" "Floor ${
-							f - floorNumStart
-						}/${floorNumEnd - floorNumStart}"`
+						`notify-send -a "tuxstrap" -u low "Regretevator" "Floor ${f} - ${activeFloorCount}/${numFloors}"`
 					);
 				} else if ((data.state as string) === "Going up!") {
 					// exec(`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`);
 				} else if ((data.state as string) === "Lounging in the lobby") {
-					floorNumEnd += numFloorsDeath;
-					console.log(
-						"[DailyChallenge]",
-						`Setting target floor to ${floorNumEnd}`
-					);
-					exec(
-						`notify-send -a "tuxstrap" -u low "Regretevator" "haha im making you do ${numFloorsDeath} more floors >:3"`
-					);
+					if (!dead) {
+						dead = true;
+						numFloorsDead++;
+						console.log(
+							"[RegretevatorDailyChallenge]",
+							`Player died, resetting active floor count`
+						);
+						exec(
+							`notify-send -a "tuxstrap" -u low "Regretevator" "haha im making you do ${numFloorsDeath} more floors >:3"`
+						);
+					}
+				} else if ((data.state as string) === "In the elevator") {
+					dead = false;
 				}
 			}
 		} catch (e_) {}
 	} else {
 		floorNumStart = 999999;
 		regretevator = false;
+		(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
 	}
 });
