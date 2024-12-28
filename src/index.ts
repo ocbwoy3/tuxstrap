@@ -12,6 +12,10 @@ import { ActivityWatcher } from "./lib/ActivityWatcher";
 import { TuxstrapOptions } from "./lib/Types";
 import { BloxstrapRPC } from "./lib/BloxstrapRPC";
 
+// Env
+
+(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
+
 // console.log(textSync("TuxStrap"));
 const program = new Command("tuxstrap");
 

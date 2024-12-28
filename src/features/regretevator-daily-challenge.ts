@@ -24,6 +24,7 @@ bloxstraprpc.aw!.BloxstrapRPCEvent.on("OnGameJoin", () => {
 	floorNumStart = 999999;
 	floorNumEnd = 999999;
 	numFloorsGoal = 50;
+	numFloorsDead = 0;
 	challengeDone = false;
 	dead = false;
 	activeFloorCount = 0;
@@ -74,7 +75,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE =
 							false;
 						exec(
-							`notify-send -a "tuxstrap" -u low "Regretevator" "You survived ${numFloorsGoal} floors, congrats! :3"`
+							`notify-send -a "tuxstrap" -u low "Regretevator" "You survived ${numFloorsGoal} floors.\nCongrats! :3"`
 						);
 						console.log(
 							"[RegretevatorDailyChallenge]",
@@ -87,7 +88,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						`On floor ${f}, active floor ${activeFloorCount}/${numFloorsGoal}`
 					);
 					exec(
-						`notify-send -a "tuxstrap" -u low "Regretevator" "Floor ${f} - ${activeFloorCount}/50"`
+						`notify-send -a "tuxstrap" -u low "Regretevator" "Floor ${f} - ${activeFloorCount}/${numFloorsGoal}"`
 					);
 				} else if ((data.state as string) === "Going up!") {
 					// exec(`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`);

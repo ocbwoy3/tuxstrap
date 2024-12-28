@@ -4,8 +4,8 @@
   "description": "A commandline launcher for Roblox on Linux",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "bun src/index.ts --gamemode --use-features \"wayland-copy,regretevator-notifications,regretevator-daily-challenge,hyprland-ipc,regretevator-waybar\"",
-    "dev-opengl": "bun src/index.ts --gamemode --opengl --use-features \"wayland-copy,regretevator-notifications,regretevator-daily-challenge,hyprland-ipc,regretevator-waybar\"",
+    "dev": "bun src/index.ts --use-features \"wayland-copy,regretevator-notifications,regretevator-daily-challenge,hyprland-ipc,regretevator-waybar\"",
+    "dev-opengl": "bun src/index.ts --opengl --use-features \"wayland-copy,regretevator-notifications,regretevator-daily-challenge,hyprland-ipc,regretevator-waybar\"",
     "build": "mkdir -p dist && bun build --minify --compile src/ --outfile dist/tuxstrap"
   },
   "repository": {
