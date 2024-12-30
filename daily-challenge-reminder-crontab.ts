@@ -40,14 +40,18 @@ function checkChallengeState() {
 		const state = JSON.parse(fs.readFileSync(stateFilePath, "utf-8"));
 		const today = new Date().toISOString().split("T")[0];
 		const stateDate = state.date;
-		const floorsSurvived = state.floorsSurvived;
+		const floorsSurvived = state.floors;
 
 		const now = new Date();
 		const hoursLeft = 24 - now.getHours();
 
 		if (stateDate === today) {
 			if (floorsSurvived < 25) {
-				sendReminderNotificationPlayed(floorsSurvived);
+				if (floorsSurvived === 0) {
+					sendReminderNotification();
+				} else {
+					sendReminderNotificationPlayed(floorsSurvived);
+				}
 				if (hoursLeft <= 4) {
 					sendSpamNotifications();
 				}
