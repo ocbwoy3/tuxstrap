@@ -6,6 +6,8 @@ import {
 import path from "path";
 import { exec } from "child_process";
 import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
+import fs from "fs";
+import os from "os";
 
 // TODO: find a way to detect the daily challenge has already been done, to disable this func.
 
@@ -18,6 +20,32 @@ let numFloorsDead = 0;
 let challengeDone: boolean = false;
 let dead: boolean = false;
 let activeFloorCount = 0;
+
+function writeState(floors: number) {
+	// write json to ~/.regretevator-challenge-state
+	// only if: date is not today or the floor count is less than 25
+	const stateFilePath = path.join(os.homedir(), ".regretevator-challenge-state");
+
+	const today = new Date().toISOString().split("T")[0];
+	const writeState = (floors2: number, date2: string) => {
+		if (date2 !== today || floors2 < 25) {
+			const state = { floors, today };
+			console.log(
+				"[RegretevatorDailyChallenge]",
+				`Writing challenge state file: ${today} - ${floors} floors`
+			);
+			fs.writeFileSync(stateFilePath, JSON.stringify(state, null, 2));
+		}
+	};
+
+	if (fs.existsSync(stateFilePath)) {
+		const state = JSON.parse(fs.readFileSync(stateFilePath, "utf-8"));
+		const { floors: savedFloors, date: savedDate } = state;
+		writeState(savedFloors, savedDate);
+	} else {
+		writeState(floors, today);
+	}
+}
 
 bloxstraprpc.aw!.BloxstrapRPCEvent.on("OnGameJoin", () => {
 	regretevator = false;
@@ -70,6 +98,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						return;
 					}
 					activeFloorCount++;
+					writeState(activeFloorCount);
 					if (activeFloorCount === numFloorsGoal) {
 						challengeDone = true;
 						(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE =
@@ -111,8 +140,11 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 			}
 		} catch (e_) {}
 	} else {
-		floorNumStart = 50;
+		floorNumStart = 999999;
 		regretevator = false;
 		(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
+		exec(
+			`notify-send -a "tuxstrap" -u low "Regretevator" "BRO YOU AIN'T EVEN FINISH 25 FLOORS BRUH"`
+		);
 	}
 });
