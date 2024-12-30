@@ -20,7 +20,7 @@ function sendReminderNotificationPlayed(floors: number) {
 }
 
 function sendSpamNotifications() {
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 2; i++) {
 		exec(
 			`notify-send -a "tuxstrap" -u low "OCbwoy3's Dotfiles" "HURRY UP!!!!!"`
 		);
@@ -30,7 +30,7 @@ function sendSpamNotifications() {
 function writeState(floorsSurvived: number) {
 	const state = {
 		date: new Date().toISOString().split("T")[0],
-		floorsSurvived: floorsSurvived,
+		floors: floorsSurvived,
 	};
 	fs.writeFileSync(stateFilePath, JSON.stringify(state, null, 2));
 }
@@ -47,10 +47,9 @@ function checkChallengeState() {
 
 		if (stateDate === today) {
 			if (floorsSurvived < 25) {
+				sendReminderNotificationPlayed(floorsSurvived);
 				if (hoursLeft <= 4) {
 					sendSpamNotifications();
-				} else {
-					sendReminderNotificationPlayed(floorsSurvived);
 				}
 			}
 		} else {
