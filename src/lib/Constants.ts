@@ -3,7 +3,7 @@ import { EventEmitter } from "stream";
 import { ActivityWatcher } from "./ActivityWatcher";
 import { BloxstrapRPC } from "./BloxstrapRPC";
 
-export const TUXSTRAP_VERSION = "1.1.1";
+export const TUXSTRAP_VERSION = "1.2.0";
 
 export const SOBER_CHECK_COMMAND = `flatpak list | grep "org\\.vinegarhq\\.Sober"`;
 export const SOBER_PATH = `${homedir()}/.var/app/org.vinegarhq.Sober`;
