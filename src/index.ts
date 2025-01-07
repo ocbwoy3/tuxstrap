@@ -11,6 +11,7 @@ import { exec, spawn } from "child_process";
 import { ActivityWatcher } from "./lib/ActivityWatcher";
 import { TuxstrapOptions } from "./lib/Types";
 import { BloxstrapRPC } from "./lib/BloxstrapRPC";
+import { registerXdgOpen } from "./lib/XdgRegistration";
 
 // Env
 
@@ -49,6 +50,8 @@ Example call:
 program.parse(process.argv);
 
 const options = program.opts();
+
+registerXdgOpen();
 
 if (options.disown) {
 	if (process.setgid) {

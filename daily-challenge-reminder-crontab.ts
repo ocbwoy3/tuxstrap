@@ -7,6 +7,13 @@ const stateFilePath = path.join(
 	".regretevator-challenge-state"
 );
 
+const regretevatorStateFile = path.join(
+	process.env.HOME || "~",
+	".regretevator_state"
+);
+
+if (fs.existsSync(regretevatorStateFile)) process.exit(0);
+
 function sendReminderNotification() {
 	exec(
 		`notify-send -a "tuxstrap" -u low "OCbwoy3's Dotfiles" "It's time for Regretevator!"`
@@ -46,7 +53,7 @@ function checkChallengeState() {
 		const hoursLeft = 24 - now.getHours();
 
 		if (stateDate === today) {
-			if (floorsSurvived < 25) {
+			if (floorsSurvived <= 25) {
 				if (floorsSurvived === 0) {
 					sendReminderNotification();
 				} else {

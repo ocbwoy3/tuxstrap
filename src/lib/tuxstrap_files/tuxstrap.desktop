@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=TuxStrap
+GenericName=Bloxstrap alternative for Linux
+Comment=Launches Roblox using TuxStrap
+Keywords=Roblox
+Exec=%TUXSTRAP_BIN% --background --use-features "wayland-copy,regretevator-notifications,regretevator-daily-challenge,hyprland-ipc,regretevator-waybar" %u
+Type=Application
+NoDisplay=false
+Categories=Game
+MimeType=x-scheme-handler/roblox;x-scheme-handler/roblox-player;
