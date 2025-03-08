@@ -5,7 +5,7 @@ import {
 } from "../lib/Constants";
 import path from "path";
 import { exec } from "child_process";
-import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
+import { GetUniverseId } from "../lib/RobloxAPI";
 import fs from "fs";
 import os from "os";
 
@@ -157,11 +157,13 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 		floorNumStart = 999999;
 		regretevator = false;
 		(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
+		/*
 		exec(
 			`notify-send -a "tuxstrap" -u low -h int:value:${getProgressPercentage(
 				activeFloorCount,
 				numFloorsGoal
 			)} "Regretevator" "BRO YOU AIN'T EVEN FINISH 25 FLOORS BRUH"`
 		);
+		*/
 	}
 });

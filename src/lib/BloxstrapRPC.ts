@@ -3,12 +3,10 @@ import * as constants from "./Constants";
 import {
 	GameDetailResponse,
 	RichPresence,
-	ServerType,
-	UniverseIdResponse,
+	ServerType
 } from "./Types";
 import { GetPlaceDetails, GetPlaceIcon, GetUniverseId } from "./RobloxAPI";
 import rpc, { Presence } from "discord-rpc";
-import { exec } from "node:child_process";
 
 export class BloxstrapRPC {
 	public aw: ActivityWatcher | undefined;

@@ -3,9 +3,7 @@ import {
 	bloxstraprpc,
 	PluginEventEmitter,
 } from "../lib/Constants";
-import path from "path";
-import { exec } from "child_process";
-import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
+import { GetUniverseId } from "../lib/RobloxAPI";
 import { rmSync, writeFileSync } from "fs";
 import { homedir } from "os";
 
@@ -21,7 +19,7 @@ activityWatcher.BloxstrapRPCEvent.on("OnGameLeave", () => {
 	lastFloorNum = "0";
 	try {
 		rmSync(`${homedir()}/.regretevator_state`);
-	} catch {}
+	} catch { }
 });
 
 PluginEventEmitter.on("SetRichPresence", async (data: any) => {
@@ -33,9 +31,9 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 		try {
 			if (
 				bloxstraprpc._stashedRPCMessage?.largeImage?.hoverText ===
-					"THE REGRET ELEVATOR" &&
+				"THE REGRET ELEVATOR" &&
 				bloxstraprpc._stashedRPCMessage?.smallImage?.hoverText ===
-					"The Axolotl Sun"
+				"The Axolotl Sun"
 			) {
 				if ((data.state as string).match(/^On Floor ([0-9]+)$/)) {
 					const f = (data.state as string).replace(/[a-zA-Z ]*/g, "");
@@ -53,8 +51,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 					writeState(`{"text":"ý ${f}","tooltip":"Spectating ${f}"}`);
 				} else if ((data.state as string) === "Going up!") {
 					writeState(
-						`{"text":"ý ","tooltip":"Floor ${lastFloorNum}  ${
-							Number(lastFloorNum) + 1
+						`{"text":"ý ","tooltip":"Floor ${lastFloorNum}  ${Number(lastFloorNum) + 1
 						}"}`
 					);
 				} else if ((data.state as string) === "Lounging in the lobby") {
@@ -67,13 +64,12 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						);
 					} else {
 						writeState(
-							`{"text":"ý ","tooltip":"Floor ${lastFloorNum}  ${
-								Number(lastFloorNum) + 1
+							`{"text":"ý ","tooltip":"Floor ${lastFloorNum}  ${Number(lastFloorNum) + 1
 							}"}`
 						);
 					}
 				}
 			}
-		} catch (e_) {}
+		} catch (e_) { }
 	}
 });

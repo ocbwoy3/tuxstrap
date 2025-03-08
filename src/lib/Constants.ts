@@ -8,14 +8,14 @@ export const TUXSTRAP_VERSION = "1.2.0";
 export const SOBER_CHECK_COMMAND = `flatpak list | grep "org\\.vinegarhq\\.Sober"`;
 export const SOBER_PATH = `${homedir()}/.var/app/org.vinegarhq.Sober`;
 export const LAUNCH_COMMAND = "flatpak run org.vinegarhq.Sober";
-export const LOGFILE_PATH = `${homedir()}/.var/app/org.vinegarhq.Sober/data/sober/appData/logs/`;
+export const LOGFILE_PATH = `${SOBER_PATH}/data/sober/appData/logs/`;
 export const RECENT_LOG_THRESHOLD_SECONDS = 15;
 
 export const LOCAL_CONFIG_ROOT = `${homedir()}/.config/tuxstrap`;
 export const LOCAL_CONFIG_FILEMODS_ROOT = `${LOCAL_CONFIG_ROOT}/filemods`;
 export const LOCAL_CONFIG_FFLAGS = `${LOCAL_CONFIG_ROOT}/fflags.json`;
 export const FILEMODS_ROOT = `${homedir()}/.var/app/org.vinegarhq.Sober/data/sober/assets/content/`;
-export const FFLAGS_ROOT = `${homedir()}/.var/app/org.vinegarhq.Sober/data/sober/exe/ClientSettings/ClientAppSettings.json`;
+export const SOBER_CONFIG_PATH = `${SOBER_PATH}/config/sober/config.json`;
 
 export const DISCORD_APPID = "1005469189907173486";
 export const SMALL_IMAGE_KEY = "roblox";

@@ -25,7 +25,7 @@ export async function registerXdgOpen() {
 			writeFileSync(desktopFilePath, newDesktopSource);
 			console.warn("[TUXSTRAP] Placed tuxstrap.desktop");
 		} else {
-			console.warn("[TUXSTRAP] tuxstrap.desktop already exists");	
+			console.warn("[TUXSTRAP] XDG registration already exists");	
 		}
 	} catch (error) {
 		console.error("[TUXSTRAP] Failed to place tuxstrap.desktop", error);
@@ -33,7 +33,7 @@ export async function registerXdgOpen() {
 	try {
 		await execAsync(`xdg-mime default tuxstrap.desktop x-scheme-handler/roblox`);
 		await execAsync(`xdg-mime default tuxstrap.desktop x-scheme-handler/roblox-player`);
-		console.warn("[TUXSTRAP] Registered Roblox URI protocols");
+		console.warn("[TUXSTRAP] Registered Roblox URI protocols with XDG");
 	} catch (error) {
 		console.error("[TUXSTRAP] Failed to register Roblox URI protocols", error);
 	}

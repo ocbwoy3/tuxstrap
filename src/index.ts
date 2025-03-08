@@ -1,10 +1,10 @@
 import { Command } from "commander";
-import { textSync } from "figlet";
 import {
 	activityWatcher,
 	LAUNCH_COMMAND,
 	setActivityWatcherInstance,
 	setBloxstrapRPCInstance,
+	SOBER_CONFIG_PATH,
 	TUXSTRAP_VERSION,
 } from "./lib/Constants";
 import { exec, spawn } from "child_process";
@@ -12,6 +12,11 @@ import { ActivityWatcher } from "./lib/ActivityWatcher";
 import { TuxstrapOptions } from "./lib/Types";
 import { BloxstrapRPC } from "./lib/BloxstrapRPC";
 import { registerXdgOpen } from "./lib/XdgRegistration";
+import { readdirSync, readFileSync, rmSync } from "fs";
+import { join } from "path";
+
+import chalk from "chalk";
+import { updateSoberConfigWithFeatures } from "./lib/SoberConfigManager";
 
 // Env
 
@@ -25,7 +30,7 @@ program
 	.description("An alternative Roblox launcher for Linux")
 	.helpOption("-h, --help", "Shows this message")
 	// .option("--disable-plugins", "Disables plugins during launch") // WIP
-	.option("--use-features <features>", "Enables experimental features")
+	.option("--use-features <features>", "Enables features (e.g. wayland-copy)")
 	// .option("--disable-filemods", "Prevent file modifications from being applied") // WIP
 	.option(
 		"--gamemode",
@@ -33,8 +38,9 @@ program
 	)
 	.option("-s, --silent", "Disable game join and plugin notifications")
 	.option("-v, --verbose", "Shows Roblox's stdout in the log")
-	.option("--background", "Runs the process in the background")
-	.option("--opengl", "Use the OpenGL renderer instead of Vulkan")
+	.option("--background", "Attempts to disown the Roblox process or run it with hyprctl")
+	.option("--all-features", "Use all featurs of TuxStrap. Cannot be used with `--use-features`.")
+	.option("--reset-sober-config", "Resets the Sober config.")
 	.argument(
 		"[url]",
 		"A roblox:// URL for launching a specific game or server (optional)"
@@ -50,6 +56,8 @@ Example call:
 program.parse(process.argv);
 
 const options = program.opts();
+
+console.log(readFileSync(join(__dirname, "lib", "tuxstrap_files", "tuxstrap-figlet.txt")).toString());
 
 registerXdgOpen();
 
@@ -94,7 +102,7 @@ if (options.disown) {
 let opts: TuxstrapOptions = {
 	usePlugins: true,
 	useFeatures: [],
-	useFilemods: true,
+	useFilemods: true, // ! DEPRECATED: Sober has file overlays
 	showNotifications: true,
 	useGamemode: false,
 	verbose: false,
@@ -104,8 +112,23 @@ let opts: TuxstrapOptions = {
 if (options.disablePlugins === true) {
 	opts.usePlugins = false;
 }
+if (options.resetSoberConfig === true) {
+	try {
+		rmSync(SOBER_CONFIG_PATH)
+	} catch {}
+}
 if (options.useFeatures) {
 	(opts.useFeatures as string[]) = (options.useFeatures as string).split(",");
+}
+if (options.allFeatures === true) {
+	if (options.useFeatures) {
+		console.error(
+			"[TUXSTRAP]",
+			"Cannot use --use-features together with --all-features. Choose only one of them."
+		);
+		process.exit(1);
+	}
+	(opts.useFeatures as string[]) = readdirSync(join(__dirname,"features")).map(a=>a.replace(".ts",""));
 }
 if (options.noFilemods === true) {
 	opts.useFilemods = false;
@@ -120,31 +143,34 @@ if (options.verbose === true) {
 	opts.verbose = true;
 }
 
+updateSoberConfigWithFeatures(opts.useFeatures)
+
 const URI = program.args[0] || "roblox://";
-const sober_cmd = `${opts.useGamemode ? "gamemoderun " : ""}${LAUNCH_COMMAND}${
-	program.args[0] ? ` "${URI}"` : ""
-}${options.opengl ? " --opengl" : ""}`;
+const sober_cmd = `${opts.useGamemode ? "gamemoderun " : ""}${LAUNCH_COMMAND}${program.args[0] ? ` "${URI}"` : ""
+	}`;
+
+console.log("[TUXSTRAP]", "Using features: " + opts.useFeatures.join(" ").replace('"',""));
 
 if (options.background) {
-	console.log("[INIT]", "Process argv:", process.argv.join(" "));
+	// console.log("[TUXSTRAP]", "Process argv:", process.argv.join(" "));
 	const procargv = process.argv.join(" ").replace("--background", "");
 	if (process.env.HYPRLAND_INSTANCE_SIGNATURE) {
 		console.log(
-			"[INIT]",
+			"[TUXSTRAP]",
 			"Detected HYPRLAND_INSTANCE_SIGNATURE - Executing in background"
 		);
 		spawn("hyprctl", ["dispatch", "exec", procargv]);
+		console.log(chalk.yellow("Launching Roblox, have fun!"));
 		process.exit(0);
 	}
 	console.error(
-		"[INIT]",
+		"[TUXSTRAP]",
 		"Cannot execute in the background! Please use your WM/DE's preferred way to run commands in the background, or fork this process and disown it."
 	);
 	process.exit(1);
 }
 
-console.log("[INIT]", "Using features:", opts.useFeatures);
-console.log("[INIT]", "Sober Launch Command:", sober_cmd);
+console.log(chalk.yellow("Launching Roblox, have fun!"));
 
 if (options.opengl)
 	exec(`notify-send -a "tuxstrap" -u low "Roblox" "Using OpenGL renderer"`);
@@ -163,15 +189,15 @@ child.on("exit", (code) => {
 	if (code === 0) {
 		process.exit(0);
 	}
-	console.error("[INIT]", `Sober exited with code ${code}`);
+	console.error("[TUXSTRAP]", `Sober exited with code ${code}`);
 	if (Date.now() - launch_time > 5000) {
 		console.error(
-			"[INIT]",
+			"[TUXSTRAP]",
 			`Roblox has likely crashed, killed or been manually closed.`
 		);
 	} else {
 		console.error(
-			"[INIT]",
+			"[TUXSTRAP]",
 			`There might be another instance of Sober running.`
 		);
 	}
@@ -184,10 +210,10 @@ child.on("exit", (code) => {
 		.forEach((m: string) => {
 			try {
 				require(`${__dirname}/${m}`);
-				console.log("[INIT]", `Successfully loaded ${m}`);
+				console.log("[TUXSTRAP]", `Successfully loaded ${m}`);
 			} catch (e_) {
 				if (`${e_}`.includes("find module")) {
-					console.error("[INIT]", `Feature ${m} doesn't exist`);
+					console.error("[TUXSTRAP]", `Feature ${m} doesn't exist`);
 					if (opts.showNotifications)
 						exec(
 							`notify-send -a "tuxstrap" -u low "Roblox" "Cannot find ${m}"`

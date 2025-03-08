@@ -3,9 +3,8 @@ import {
 	bloxstraprpc,
 	PluginEventEmitter,
 } from "../lib/Constants";
-import path from "path";
 import { exec } from "child_process";
-import { GetPlaceDetails, GetUniverseId } from "../lib/RobloxAPI";
+import { GetUniverseId } from "../lib/RobloxAPI";
 
 let regretevator: boolean = false;
 
@@ -20,7 +19,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 	if (isRegretevator) {
 		if (!regretevator) {
 			regretevator = true;
-			exec(`notify-send -a "tuxstrap" -u low "Regretevator" "???????"`);
+			exec(`notify-send -a "tuxstrap" -u low "Regretevator" "uhmmm...."`);
 		}
 		try {
 			if (

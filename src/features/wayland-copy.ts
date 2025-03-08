@@ -26,7 +26,7 @@ PluginEventEmitter.on("WaylandCopy", async (data: any) => {
 				`notify-send -i ${path.join(
 					__dirname,
 					"..",
-					"assets/roblox.png"
+					"lib/tuxstrap_files/wayland.png"
 				)} -u low "Roblox" "${gmfixed} wrote to the Wayland clipboard!"`
 			);
 	}

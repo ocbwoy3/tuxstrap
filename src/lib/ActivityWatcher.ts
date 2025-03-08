@@ -9,7 +9,6 @@ import {
 import { open } from "fs/promises";
 import path, { join } from "path";
 import { getMostRecentFile } from "./Utility";
-import { readFileSync, watchFile } from "fs";
 import { GetPlaceDetails, GetPlaceIcon, GetUniverseId } from "./RobloxAPI";
 
 function escapeRegExp(s: string) {
@@ -40,12 +39,18 @@ const GameTeleportingEntry = "[FLog::SingleSurfaceApp] initiateTeleport";
 const GameMessageEntry = "[FLog::Output] [BloxstrapRPC]";
 const GameLeavingEntry = "[FLog::SingleSurfaceApp] leaveUGCGameInternal";
 
+const GamePlayerJoinLeaveEntry = "[ExpChat/mountClientApp (Trace)] - Player ";
+const GameMessageLogEntry = "[ExpChat/mountClientApp (Debug)] - Incoming MessageReceived Status: ";
+
 const GameJoiningEntryPattern =
 	/! Joining game '([0-9a-f\-]{36})' place ([0-9]+) at ([0-9\.]+)/;
 const GameJoiningUDMUXPattern =
 	/UDMUX Address = ([0-9\.]+), Port = [0-9]+ \| RCC Server Address = ([0-9\.]+), Port = [0-9]+/;
 const GameJoinedEntryPattern = /serverId: ([0-9\.]+)\|[0-9]+/;
 const GameMessageEntryPattern = /\[BloxstrapRPC\] (.*)/;
+
+const GamePlayerJoinLeavePattern = /(added|removed): (.*) (.*[0-9])/;
+const GameMessageLogPattern = /Success Text: (.*)/;
 
 // The Real Thing
 // Most of it was taken from https://github.com/ocbwoy3/sober-bloxstraprpc-wrapper/tree/main/src/ActivityWatcher.ts
@@ -195,15 +200,13 @@ export class ActivityWatcher {
 										).name
 											.replace("$", "\\$")
 											.replace('"', '\\"')
-											.replace("\n", "\\n")}\nPlace ID: ${
-											this.ActivityPlaceId
-										}${
-											this.ActivityMachineUDMUX
-												? "\\n<small>(UDMUX Protected)</small>"
-												: ""
+											.replace("\n", "\\n")}\nPlace ID: ${this.ActivityPlaceId
+										}${this.ActivityMachineUDMUX
+											? "\\n<small>(UDMUX Protected)</small>"
+											: ""
 										}"`
 									);
-								} catch {}
+								} catch { }
 							}
 						);
 					}
@@ -294,7 +297,21 @@ export class ActivityWatcher {
 						this.BloxstrapRPCEvent.emit("Message", message.data);
 						return;
 					}
-				} catch {}
+				} catch { }
+			} else if (line.includes(GamePlayerJoinLeaveEntry)) {
+				const match: RegExpMatchArray = line.match(
+					GamePlayerJoinLeavePattern
+				) as RegExpMatchArray;
+				match.splice(0, 1);
+
+				this.BloxstrapRPCEvent.emit("PlayerEvent", match[0] === "added" ? "JOIN" : "LEAVE", match[1], match[2]);
+			} else if (line.includes(GameMessageLogEntry)) {
+				const match: RegExpMatchArray = line.match(
+					GameMessageLogPattern
+				) as RegExpMatchArray;
+				match.splice(0, 1);
+
+				this.BloxstrapRPCEvent.emit("ChatMessage", match[0]);
 			}
 		}
 	}
@@ -315,8 +332,7 @@ export class ActivityWatcher {
 		while (true) {
 			console.log(
 				"[ActivityWatcher]",
-				`Obtaining log file (attempt ${
-					attempts + 1
+				`Obtaining log file (attempt ${attempts + 1
 				} of ${MAX_ATTEMPTS})`
 			);
 			const latestFile: { file: string; mtime: Date } | undefined =
@@ -325,7 +341,7 @@ export class ActivityWatcher {
 			if (
 				latestFile &&
 				Date.now() - latestFile.mtime.getTime() <=
-					RECENT_LOG_THRESHOLD_SECONDS * 1000
+				RECENT_LOG_THRESHOLD_SECONDS * 1000
 			) {
 				if (
 					latestFile.mtime.getTime() < this.options.tuxstrapLaunchTime
@@ -355,7 +371,6 @@ export class ActivityWatcher {
 			console.error("[ActivityWatcher]", `Roblox doesn't have stdout!`);
 			this.roblox.kill(1);
 			process.exit(1);
-			return;
 		}
 
 		const robloxLogfile = await this.getLogfile();
