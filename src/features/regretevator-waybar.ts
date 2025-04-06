@@ -8,7 +8,7 @@ import { rmSync, writeFileSync } from "fs";
 import { homedir } from "os";
 
 function writeState(data: string) {
-	writeFileSync(`${homedir()}/.regretevator_state`, data);
+	writeFileSync(`/tmp/.regretevator_state`, data);
 }
 
 let isInitalLaunch = true;
@@ -18,7 +18,7 @@ activityWatcher.BloxstrapRPCEvent.on("OnGameLeave", () => {
 	isInitalLaunch = true;
 	lastFloorNum = "0";
 	try {
-		rmSync(`${homedir()}/.regretevator_state`);
+		rmSync(`/tmp/.regretevator_state`);
 	} catch { }
 });
 

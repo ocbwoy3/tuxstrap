@@ -1,10 +1,11 @@
 {
   "name": "tuxstrap",
   "version": "1.0.0",
-  "description": "A commandline launcher for Roblox on Linux",
+  "description": "A Bloxstrap \"alternative\" for Linux users.",
   "main": "src/index.ts",
   "scripts": {
     "dev": "bun src/index.ts --use-features \"wayland-copy,regretevator-notifications,hyprland-ipc,regretevator-waybar\"",
+    "ui": "bun --watch src/index.ts \"roblox://tuxstrap\"",
     "dev-dev": "bun src/index.ts --verbose --all-features --reset-sober-config",
     "build": "mkdir -p dist && bun build --minify --compile src/ --outfile dist/tuxstrap"
   },

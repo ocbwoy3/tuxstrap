@@ -17,6 +17,7 @@ import { join } from "path";
 
 import chalk from "chalk";
 import { updateSoberConfigWithFeatures } from "./lib/SoberConfigManager";
+import { runSettingsManager } from "./lib/TuxstrapManager";
 
 // Env
 
@@ -38,8 +39,14 @@ program
 	)
 	.option("-s, --silent", "Disable game join and plugin notifications")
 	.option("-v, --verbose", "Shows Roblox's stdout in the log")
-	.option("--background", "Attempts to disown the Roblox process or run it with hyprctl")
-	.option("--all-features", "Use all featurs of TuxStrap. Cannot be used with `--use-features`.")
+	.option(
+		"--background",
+		"Attempts to disown the Roblox process or run it with hyprctl"
+	)
+	.option(
+		"--all-features",
+		"Use all featurs of TuxStrap. Cannot be used with `--use-features`."
+	)
 	.option("--reset-sober-config", "Resets the Sober config.")
 	.argument(
 		"[url]",
@@ -57,9 +64,11 @@ program.parse(process.argv);
 
 const options = program.opts();
 
-console.log(readFileSync(join(__dirname, "lib", "tuxstrap_files", "tuxstrap-figlet.txt")).toString());
-
-registerXdgOpen();
+console.log(
+	readFileSync(
+		join(__dirname, "lib", "tuxstrap_files", "tuxstrap-figlet.txt")
+	).toString()
+);
 
 if (options.disown) {
 	if (process.setgid) {
@@ -114,7 +123,7 @@ if (options.disablePlugins === true) {
 }
 if (options.resetSoberConfig === true) {
 	try {
-		rmSync(SOBER_CONFIG_PATH)
+		rmSync(SOBER_CONFIG_PATH);
 	} catch {}
 }
 if (options.useFeatures) {
@@ -128,7 +137,9 @@ if (options.allFeatures === true) {
 		);
 		process.exit(1);
 	}
-	(opts.useFeatures as string[]) = readdirSync(join(__dirname,"features")).map(a=>a.replace(".ts",""));
+	(opts.useFeatures as string[]) = readdirSync(
+		join(__dirname, "features")
+	).map((a) => a.replace(".ts", ""));
 }
 if (options.noFilemods === true) {
 	opts.useFilemods = false;
@@ -143,98 +154,117 @@ if (options.verbose === true) {
 	opts.verbose = true;
 }
 
-updateSoberConfigWithFeatures(opts.useFeatures)
+(() => {
+	const URI = program.args[0] || "roblox://";
 
-const URI = program.args[0] || "roblox://";
-const sober_cmd = `${opts.useGamemode ? "gamemoderun " : ""}${LAUNCH_COMMAND}${program.args[0] ? ` "${URI}"` : ""
-	}`;
-
-console.log("[TUXSTRAP]", "Using features: " + opts.useFeatures.join(" ").replace('"',""));
-
-if (options.background) {
-	// console.log("[TUXSTRAP]", "Process argv:", process.argv.join(" "));
-	const procargv = process.argv.join(" ").replace("--background", "");
-	if (process.env.HYPRLAND_INSTANCE_SIGNATURE) {
-		console.log(
-			"[TUXSTRAP]",
-			"Detected HYPRLAND_INSTANCE_SIGNATURE - Executing in background"
-		);
-		spawn("hyprctl", ["dispatch", "exec", procargv]);
-		console.log(chalk.yellow("Launching Roblox, have fun!"));
-		process.exit(0);
+	if (URI === "roblox://tuxstrap") {
+		runSettingsManager();
+		return;
 	}
-	console.error(
+
+	updateSoberConfigWithFeatures(opts.useFeatures);
+
+	const sober_cmd = `${
+		opts.useGamemode ? "gamemoderun " : ""
+	}${LAUNCH_COMMAND}${program.args[0] ? ` "${URI}"` : ""}`;
+
+	console.log(
 		"[TUXSTRAP]",
-		"Cannot execute in the background! Please use your WM/DE's preferred way to run commands in the background, or fork this process and disown it."
+		"Using features: " + opts.useFeatures.join(" ").replace('"', "")
 	);
-	process.exit(1);
-}
 
-console.log(chalk.yellow("Launching Roblox, have fun!"));
+	registerXdgOpen();
 
-if (options.opengl)
-	exec(`notify-send -a "tuxstrap" -u low "Roblox" "Using OpenGL renderer"`);
-
-const launch_time = Date.now();
-const child = exec(sober_cmd);
-
-const watcher = new ActivityWatcher(child, opts);
-setActivityWatcherInstance(watcher);
-
-const rpc = new BloxstrapRPC(watcher);
-setBloxstrapRPCInstance(rpc);
-// Fix for TypeError: undefined is not an object (evaluating 'bloxstraprpc._stashedRPCMessage')
-
-child.on("exit", (code) => {
-	if (code === 0) {
-		process.exit(0);
-	}
-	console.error("[TUXSTRAP]", `Sober exited with code ${code}`);
-	if (Date.now() - launch_time > 5000) {
+	if (options.background) {
+		// console.log("[TUXSTRAP]", "Process argv:", process.argv.join(" "));
+		const procargv = process.argv.join(" ").replace("--background", "");
+		if (process.env.HYPRLAND_INSTANCE_SIGNATURE) {
+			console.log(
+				"[TUXSTRAP]",
+				"Detected HYPRLAND_INSTANCE_SIGNATURE - Executing in background"
+			);
+			spawn("hyprctl", ["dispatch", "exec", procargv]);
+			console.log(chalk.yellow("Launching Roblox, have fun!"));
+			process.exit(0);
+		}
 		console.error(
 			"[TUXSTRAP]",
-			`Roblox has likely crashed, killed or been manually closed.`
+			"Cannot execute in the background! Please use your WM/DE's preferred way to run commands in the background, or fork this process and disown it."
 		);
-	} else {
-		console.error(
-			"[TUXSTRAP]",
-			`There might be another instance of Sober running.`
-		);
+		process.exit(1);
 	}
-	process.exit(1);
-});
 
-(async () => {
-	opts.useFeatures
-		.map((v: string) => `features/${v}`)
-		.forEach((m: string) => {
-			try {
-				require(`${__dirname}/${m}`);
-				console.log("[TUXSTRAP]", `Successfully loaded ${m}`);
-			} catch (e_) {
-				if (`${e_}`.includes("find module")) {
-					console.error("[TUXSTRAP]", `Feature ${m} doesn't exist`);
-					if (opts.showNotifications)
-						exec(
-							`notify-send -a "tuxstrap" -u low "Roblox" "Cannot find ${m}"`
-						);
-				} else {
-					console.error("[INIT]", `Failed to load ${m}:`, e_);
-					if (opts.showNotifications)
-						exec(
-							`notify-send -a "tuxstrap" -u low "Roblox" "Error loading ${m}"`
-						);
-				}
-			}
-		});
-})();
+	console.log(chalk.yellow("Launching Roblox, have fun!"));
 
-if (opts.showNotifications) {
-	activityWatcher.BloxstrapRPCEvent.on("ObtainLog", () => {
+	if (options.opengl)
 		exec(
-			`notify-send -a tuxstrap -u low "TuxStrap" "Obtained Roblox's logfile"`
+			`notify-send -a "tuxstrap" -u low "Roblox" "Using OpenGL renderer"`
 		);
-	});
-}
 
-watcher.stdoutWatcher();
+	const launch_time = Date.now();
+	const child = exec(sober_cmd);
+
+	const watcher = new ActivityWatcher(child, opts);
+	setActivityWatcherInstance(watcher);
+
+	const rpc = new BloxstrapRPC(watcher);
+	setBloxstrapRPCInstance(rpc);
+	// Fix for TypeError: undefined is not an object (evaluating 'bloxstraprpc._stashedRPCMessage')
+
+	child.on("exit", (code) => {
+		if (code === 0) {
+			process.exit(0);
+		}
+		console.error("[TUXSTRAP]", `Sober exited with code ${code}`);
+		if (Date.now() - launch_time > 5000) {
+			console.error(
+				"[TUXSTRAP]",
+				`Roblox has likely crashed, killed or been manually closed.`
+			);
+		} else {
+			console.error(
+				"[TUXSTRAP]",
+				`There might be another instance of Sober running.`
+			);
+		}
+		process.exit(1);
+	});
+
+	(async () => {
+		opts.useFeatures
+			.map((v: string) => `features/${v}`)
+			.forEach((m: string) => {
+				try {
+					require(`${__dirname}/${m}`);
+					console.log("[TUXSTRAP]", `Successfully loaded ${m}`);
+				} catch (e_) {
+					if (`${e_}`.includes("find module")) {
+						console.error(
+							"[TUXSTRAP]",
+							`Feature ${m} doesn't exist`
+						);
+						if (opts.showNotifications)
+							exec(
+								`notify-send -a "tuxstrap" -u low "Roblox" "Cannot find ${m}"`
+							);
+					} else {
+						console.error("[INIT]", `Failed to load ${m}:`, e_);
+						if (opts.showNotifications)
+							exec(
+								`notify-send -a "tuxstrap" -u low "Roblox" "Error loading ${m}"`
+							);
+					}
+				}
+			});
+	})();
+
+	if (opts.showNotifications) {
+		activityWatcher.BloxstrapRPCEvent.on("ObtainLog", () => {
+			exec(
+				`notify-send -a tuxstrap -u low "TuxStrap" "Obtained Roblox's logfile"`
+			);
+		});
+	}
+
+	watcher.stdoutWatcher();
+})();

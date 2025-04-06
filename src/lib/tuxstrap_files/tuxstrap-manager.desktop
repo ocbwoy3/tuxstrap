@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=TuxStrap Settings
+Comment=Launches the TuxStrap Settings UI
+Keywords=Roblox;TuxStrap;Manager;Settings;
+Exec=%TUXSTRAP_BIN% --background --all-features "roblox://tuxstrap"
+Type=Application
+NoDisplay=false
+Categories=Game
