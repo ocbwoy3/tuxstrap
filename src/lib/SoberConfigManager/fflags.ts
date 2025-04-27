@@ -13,5 +13,5 @@ export const defaultFFlags: { [key: string]: string | boolean | number } = {
 	FStringAdGuiHorizontalRobloxFallbackImageAssetId: 86999279798758,
 	FStringAdGuiHorizontalStudioPlaceHolderImageAssetId: 86999279798758,
 	FStringAdGuiLivePreviewWatermarkV2: 86999279798758,
-	// FStringWhitelistVerifiedUserId: "1083030325",
+	FStringWhitelistVerifiedUserId: "1083030325",
 }
