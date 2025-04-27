@@ -19,10 +19,6 @@ import chalk from "chalk";
 import { updateSoberConfigWithFeatures } from "./lib/SoberConfigManager";
 import { runSettingsManager } from "./lib/TuxstrapManager";
 
-// Env
-
-(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
-
 // console.log(textSync("TuxStrap"));
 const program = new Command("tuxstrap");
 
