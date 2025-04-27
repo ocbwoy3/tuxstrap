@@ -89,46 +89,45 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 				bloxstraprpc._stashedRPCMessage?.smallImage?.hoverText ===
 					"The Axolotl Sun"
 			) {
-				if ((data.state as string).match(/^On Floor ([0-9]+)$/)) {
-					const f = Number(
+				if ((data.state as string).match(/^Floor streak ([0-9]+)$/)) {
+					const streak = Number(
 						(data.state as string).replace(/[a-zA-Z ]*/g, "")
 					);
 					if (floorNumStart === 999999) {
-						floorNumStart = f;
-						floorNumEnd = f + numFloorsGoal;
+						floorNumStart = streak;
+						floorNumEnd = streak + numFloorsGoal;
 						console.log(
 							"[RegretevatorDailyChallenge]",
-							`Detected Regretevator, floor ${floorNumStart}, target floor ${floorNumEnd}`
+							`Detected Regretevator, streak ${floorNumStart}, target streak ${floorNumEnd}`
 						);
 						exec(
 							`notify-send -a "tuxstrap" -u low -h int:value:0 "Regretevator" "Challenge: Survive ${numFloorsGoal} floors"`
 						);
 						return;
 					}
-					activeFloorCount++;
+					activeFloorCount = streak - floorNumStart + 1;
 					writeState(activeFloorCount);
 					if (activeFloorCount === numFloorsGoal) {
 						challengeDone = true;
-						(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE =
-							false;
+						(process as any).REGRETEVATOR_DAILY_CHALLENGE_ACTIVE = false;
 						exec(
 							`notify-send -a "tuxstrap" -u low -h int:value:100 "Regretevator" "You survived ${numFloorsGoal} floors.\nCongrats! :3"`
 						);
 						console.log(
 							"[RegretevatorDailyChallenge]",
-							`Finished challenge, floors survived: ${numFloorsGoal}`
+							`Finished challenge, floor streak: ${numFloorsGoal}`
 						);
 						return;
 					}
 					console.log(
 						"[RegretevatorDailyChallenge]",
-						`On floor ${f}, active floor ${activeFloorCount}/${numFloorsGoal}`
+						`On streak ${streak}, active streak ${activeFloorCount}/${numFloorsGoal}`
 					);
 					exec(
 						`notify-send -a "tuxstrap" -u low -h int:value:${getProgressPercentage(
 							activeFloorCount,
 							numFloorsGoal
-						)} "Regretevator" "Floor ${f} - ${activeFloorCount}/${numFloorsGoal}"`
+						)} "Regretevator" "Streak ${streak} - ${activeFloorCount}/${numFloorsGoal}"`
 					);
 				} else if ((data.state as string) === "Going up!") {
 					// exec(`notify-send -a "tuxstrap" -u low "Regretevator" "Going Up!"`);
@@ -137,10 +136,7 @@ PluginEventEmitter.on("SetRichPresence", async (data: any) => {
 						floorNumEnd += numFloorsDeath;
 						numFloorsDead++;
 						numFloorsGoal += numFloorsDeath;
-						console.log(
-							"[RegretevatorDailyChallenge]",
-							`Player died`
-						);
+						console.log("[RegretevatorDailyChallenge]", `Player died`);
 						exec(
 							`notify-send -a "tuxstrap" -u low -h int:value:${getProgressPercentage(
 								activeFloorCount,
