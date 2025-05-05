@@ -15,7 +15,7 @@ This is a wrapper for Roblox written in TypeScript, which acts as an alternative
 
 <details open>
 
-<summary>How To Install</summary>
+<summary>Installation and Usage</summary>
 
 ## Installation
 
@@ -23,7 +23,7 @@ To install TuxStrap, you'll need.
 
 - [Sober](https://sober.vinegarhq.org)
 - Bun
-- libnotify (maybe dunst too)
+- libnotify
 
 Firstly, clone this repository into a folder of your choice and then run `bun install`. Then, run `bun run dev` to start Roblox and (hopefully) create all XDG registrations to `roblox://` and desktop entrties.
 
@@ -32,6 +32,12 @@ I'd recommend using Hyprland, as this program uses `hyprctl` to create the proce
 When you're updating Roblox, make sure to run Sober (and not TuxStrap) via the `flatpak run` command instead!
 
 As an additional note, you can run `bun run src/index.ts --help` for help options.
+
+## Usage
+
+Upon installing TuxStrap, you'll need register Roblox's URL protocol with `xdg-mime`. The best way to do it is to launch it with `bun run src/index.ts`.
+
+Once done, run `xdg-open roblox://tuxstrap` in the terminal to open up the account switcher. If you don't have a profile, create it and switch to it.
 
 </details>
 
