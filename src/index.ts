@@ -17,7 +17,10 @@ import { join } from "path";
 
 import chalk from "chalk";
 import { updateSoberConfigWithFeatures } from "./lib/SoberConfigManager";
-import { runSettingsManager } from "./lib/TuxstrapManager";
+import {
+	linkCurrentRobloxAccountCookies,
+	runSettingsManager,
+} from "./lib/TuxstrapManager";
 
 // console.log(textSync("TuxStrap"));
 const program = new Command("tuxstrap");
@@ -196,6 +199,8 @@ if (options.verbose === true) {
 		exec(
 			`notify-send -a "tuxstrap" -u low "Roblox" "Using OpenGL renderer"`
 		);
+
+	linkCurrentRobloxAccountCookies();
 
 	const launch_time = Date.now();
 	const child = exec(sober_cmd);
