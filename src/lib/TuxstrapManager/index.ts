@@ -36,6 +36,7 @@ interface ProfileMetadata {
 	nickname: string;
 	createdAt: string;
 	lastUsed: string;
+	optionalFeatures?: string[];
 }
 
 function createTuxstrapConfigDir(): void {
@@ -130,6 +131,7 @@ function getProfileMetadata(profileName: string): ProfileMetadata {
 		nickname: profileName,
 		createdAt: new Date().toISOString(),
 		lastUsed: new Date().toISOString(),
+		optionalFeatures: [],
 	};
 }
 
@@ -334,6 +336,14 @@ export function linkCurrentRobloxAccountCookies(): void {
 	loadProfileState(current);
 }
 
+export function getOptionalFeaturesForCurrentProfile(): string[] {
+	const current = existsSync(CURRENT_PROFILE_FILE)
+		? readFileSync(CURRENT_PROFILE_FILE, "utf-8").trim()
+		: null;
+	if (!current) throw new Error("No current profile set.");
+	return getProfileMetadata(current).optionalFeatures || [];
+}
+
 /**
  * Check if a directory is empty
  */
@@ -354,7 +364,9 @@ function isDirectoryEmpty(dirPath: string): boolean {
  * Debug function to list all files in a directory
  */
 function debugListDirectory(dirPath: string, indent = ""): void {
-	console.log(`${indent}Directory: ${dirPath}`);
+	return;
+	/*
+	// console.log(`${indent}Directory: ${dirPath}`);
 
 	try {
 		if (!existsSync(dirPath)) {
@@ -387,6 +399,7 @@ function debugListDirectory(dirPath: string, indent = ""): void {
 	} catch (error) {
 		console.error(`Error listing directory: ${dirPath}`, error);
 	}
+		*/
 }
 
 export async function runSettingsManager(): Promise<void> {

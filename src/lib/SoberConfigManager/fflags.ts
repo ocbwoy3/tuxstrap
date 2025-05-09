@@ -1,5 +1,9 @@
 export const FeatureFFlags: {[feature: string]: { [key: string]: string | boolean | number }} = {
-	["roblox-logger"]: {
+	["roblox-logger.opt"]: {
+		FStringDebugLuaLogLevel: "trace",
+		FStringDebugLuaLogPattern: "ExpChat/mountClientApp"
+	},
+	["tgp.opt"]: {
 		FStringDebugLuaLogLevel: "trace",
 		FStringDebugLuaLogPattern: "ExpChat/mountClientApp"
 	}

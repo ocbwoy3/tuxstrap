@@ -18,6 +18,7 @@ import { join } from "path";
 import chalk from "chalk";
 import { updateSoberConfigWithFeatures } from "./lib/SoberConfigManager";
 import {
+	getOptionalFeaturesForCurrentProfile,
 	linkCurrentRobloxAccountCookies,
 	runSettingsManager,
 } from "./lib/TuxstrapManager";
@@ -136,9 +137,11 @@ if (options.allFeatures === true) {
 		);
 		process.exit(1);
 	}
-	(opts.useFeatures as string[]) = readdirSync(
+	(opts.useFeatures as string[]) = [...getOptionalFeaturesForCurrentProfile(), ...readdirSync(
 		join(__dirname, "features")
-	).map((a) => a.replace(".ts", ""));
+	).filter(a=>!a.endsWith(".opt.ts")).map((a) => a.replace(".ts", ""))];
+
+	
 }
 if (options.noFilemods === true) {
 	opts.useFilemods = false;
