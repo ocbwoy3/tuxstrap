@@ -1,0 +1,166 @@
+---
+description: Use CurrentState API to get current game details
+globs: "*.ts, *.js"
+alwaysApply: false
+---
+
+# CurrentState API
+
+The CurrentState API allows plugins to determine what game is currently running and track game state changes in real-time.
+
+## Overview
+
+The CurrentState API provides plugins with access to the current game state, including:
+- Place ID and Job ID of the current game
+- Server information (IP address, server type)
+- Player list and join/leave events
+- Real-time state change notifications
+
+## Usage
+
+### Basic Usage
+
+```typescript
+import { Plugin } from "../api/Plugin";
+
+const myPlugin = new Plugin({
+    name: "My Plugin",
+    id: "my-plugin"
+});
+
+// Get current state
+const currentState = myPlugin.currentState.getCurrentState();
+console.log("Current place ID:", currentState.placeId);
+
+// Check if in game
+if (myPlugin.currentState.isInGame()) {
+    console.log("Currently in game:", myPlugin.currentState.getPlaceId());
+}
+```
+
+### State Change Notifications
+
+```typescript
+// Subscribe to state changes
+const unsubscribe = myPlugin.currentState.onStateChange((state) => {
+    if (state.isInGame) {
+        console.log(`Joined game: ${state.placeId}`);
+        console.log(`Players: ${state.players.length}`);
+    } else {
+        console.log("Left game");
+    }
+});
+
+// Don't forget to unsubscribe when done
+unsubscribe();
+```
+
+### Hooking into Events
+
+```typescript
+// Hook into game join/leave events
+myPlugin.hookLog("GAME_JOIN", (gameData) => {
+    console.log("Joined game:", gameData.placeId);
+});
+
+myPlugin.hookLog("GAME_LEAVE", () => {
+    console.log("Left game");
+});
+
+// Hook into player join/leave events
+myPlugin.hookLog("JOIN_LEAVE", (playerAction) => {
+    console.log(`${playerAction.name} ${playerAction.action.toLowerCase()}ed`);
+});
+```
+
+## API Reference
+
+### CurrentStateAPI Interface
+
+```typescript
+interface CurrentStateAPI {
+    /** Get the current game state */
+    getCurrentState(): GameState;
+    
+    /** Subscribe to state changes */
+    onStateChange(callback: (state: GameState) => void): () => void;
+    
+    /** Check if currently in a game */
+    isInGame(): boolean;
+    
+    /** Get the current place ID */
+    getPlaceId(): string | null;
+    
+    /** Get the current job ID */
+    getJobId(): string | null;
+}
+```
+
+### GameState Interface
+
+```typescript
+interface GameState {
+    /** The Roblox Place ID of the current game */
+    placeId: string;
+    
+    /** The Job ID of the current server instance */
+    jobId: string;
+    
+    /** The IP address of the server */
+    ipAddr: string;
+    
+    /** Roblox's proxy IP address (if available) */
+    ipAddrUdmux?: string;
+    
+    /** The type of server (public, private, reserved) */
+    serverType: ServerType;
+    
+    /** Whether the user is currently in a game */
+    isInGame: boolean;
+    
+    /** Timestamp when the game was joined */
+    joinTime?: number;
+    
+    /** List of players currently in the game */
+    players: PlayerInfo[];
+}
+```
+
+### PlayerInfo Interface
+
+```typescript
+interface PlayerInfo {
+    /** Player's display name */
+    name: string;
+    
+    /** Player's user ID */
+    id: string;
+    
+    /** When the player joined (timestamp) */
+    joinTime: number;
+}
+```
+
+### ServerType Enum
+
+```typescript
+enum ServerType {
+    PUBLIC = "PUBLIC",
+    PRIVATE = "PRIVATE",
+    RESERVED = "RESERVED"
+}
+```
+
+## Best Practices
+
+1. **Always unsubscribe**: When subscribing to state changes, make sure to call the unsubscribe function to prevent memory leaks.
+
+2. **Check state before accessing**: Always check `isInGame()` before accessing game-specific properties like `placeId` or `jobId`.
+
+3. **Handle errors gracefully**: State change callbacks should handle errors to prevent crashes.
+
+4. **Use appropriate hooks**: Use the appropriate log hooks (`GAME_JOIN`, `GAME_LEAVE`, `JOIN_LEAVE`) for specific event handling.
+
+## Example Plugin
+
+See `src/plugins/currentStateExample.ts` for a complete example of how to use the CurrentState API in a plugin. 

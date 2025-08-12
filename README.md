@@ -1,55 +1,92 @@
-<center>
- <img width="500" src="src/lib/tuxstrap_files/branding.png"/>
-</center>
+# TuxStrap
 
-<center>
- <font size="10" face="mono">TuxStrap</font>
- <br/>
- <font size="2" face="mono">Roblox Wrapper for Linux</font>
-</center>
+A modern event-driven plugin system for Roblox game management, built with TypeScript and Bun.
 
-> [!NOTE]
-> **TuxStrap is NOT a Roblox runtime.** For that, you'll need [Sober](https://sober.vinegarhq.org).
+## Features
 
-This is a wrapper for Roblox written in TypeScript, which acts as an alternative to BloxstrapRPC (and features that use it) for Linux. As an extra, you can write your own integrations and add them directly into TuxStrap's source code, and probably even more!
-
-<details open>
-
-<summary>Installation and Usage</summary>
+- **Event-Driven Architecture**: Direct event emission to plugins without RPC overhead
+- **Type-Safe Events**: Full TypeScript support with proper type checking
+- **Plugin System**: Easy-to-use plugin registration and management
+- **State Management**: Real-time game state tracking and updates
+- **Backward Compatibility**: Legacy hook system still supported
 
 ## Installation
 
-To install TuxStrap, you'll need.
-
-- [Sober](https://sober.vinegarhq.org)
-- Bun
-- libnotify
-
-Firstly, clone this repository into a folder of your choice and then run `bun install`. Then, run `bun run dev` to start Roblox and (hopefully) create all XDG registrations to `roblox://` and desktop entrties.
-
-I'd recommend using Hyprland, as this program uses `hyprctl` to create the process in the background. Otherwise, you could do it with your WM/DE's preferred way, or fork the process and disown it.
-
-When you're updating Roblox, make sure to run Sober (and not TuxStrap) via the `flatpak run` command instead!
-
-As an additional note, you can run `bun run src/index.ts --help` for help options.
+```bash
+bun install
+```
 
 ## Usage
 
-Upon installing TuxStrap, you'll need register Roblox's URL protocol with `xdg-mime`. The best way to do it is to launch it with `bun run src/index.ts`.
+### Basic Setup
 
-Once done, run `xdg-open roblox://tuxstrap` in the terminal to open up the account switcher. If you don't have a profile, create it and switch to it.
+```typescript
+import { EventEmitter, registerPlugin } from "./src/index";
 
-</details>
+// Register a plugin
+registerPlugin({
+    name: "My Plugin",
+    id: "my-plugin",
+    forceEnable: true,
+    configPrio: 0
+}, (plugin) => {
+    // Subscribe to events
+    const gameJoinSub = plugin.on("GAME_JOIN", (gameData) => {
+        console.log("Joined game:", gameData.placeId);
+    });
 
+    // Cleanup when done
+    return () => gameJoinSub.unsubscribe();
+});
 
+// Emit events
+EventEmitter.emitGameJoin({
+    ipAddr: "127.0.0.1",
+    placeId: "123456789",
+    jobId: "test-job-id",
+    serverType: "PUBLIC"
+});
+```
 
-<details>
+### Available Events
 
-<summary>Notice</summary>
+- `GAME_JOIN`: Emitted when joining a game
+- `GAME_LEAVE`: Emitted when leaving a game
+- `PLAYER_JOIN`: Emitted when a player joins
+- `PLAYER_LEAVE`: Emitted when a player leaves
+- `BLOXSTRAP_RPC`: Emitted for Bloxstrap RPC events
+- `STATE_CHANGE`: Emitted when game state changes
 
-TuxStrap is a hobby project and is **not affiliated** with Roblox, Roblox Corp. or VinegarHQ in any way.
+## Migration from BloxstrapRPC
 
-All trademarks and registered trademarks are the property of their respective owners.
+If you're migrating from the old BloxstrapRPC API, see the [Migration Guide](docs/EVENT_SYSTEM_MIGRATION.md) for detailed instructions.
 
-</notice>
+## Development
 
+```bash
+# Run the main application
+bun run src/index.ts
+
+# Test the event system
+bun run src/test-event-system.ts
+```
+
+## Project Structure
+
+```
+src/
+├── api/
+│   ├── CurrentState.ts      # Game state management
+│   ├── EventCollector.ts    # Main event collection system
+│   ├── EventEmitter.ts      # Event emission interface
+│   ├── Plugin.ts           # Plugin registration system
+│   ├── RobloxLogHooks.ts   # Legacy hook system (deprecated)
+│   └── types.ts            # TypeScript type definitions
+├── plugins/
+│   ├── default.ts          # Default plugin configuration
+│   ├── example.ts          # Example plugin implementation
+│   └── index.ts            # Plugin loading
+└── index.ts                # Main entry point
+```
+
+This project was created using `bun init` in bun v1.2.18. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

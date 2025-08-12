@@ -1,15 +1,14 @@
-import { ChildProcess, exec } from "child_process";
-import { Message, ServerType, TuxstrapOptions } from "./Types";
-import EventEmitter from "events";
+import { ChildProcess } from "child_process";
 import {
 	LOGFILE_PATH,
-	PluginEventEmitter,
 	RECENT_LOG_THRESHOLD_SECONDS,
-} from "./Constants";
+} from "../constants";
 import { open } from "fs/promises";
 import path, { join } from "path";
-import { getMostRecentFile } from "./Utility";
-import { GetPlaceDetails, GetPlaceIcon, GetUniverseId } from "./RobloxAPI";
+import { getMostRecentFile } from "../Utils";
+import type { Message, GameJoinAction, PlrJoinLeaveAction, BloxstrapRPCAction } from "../types";
+import { ServerType } from "../types";
+import { eventCollector } from "../EventCollector";
 
 function escapeRegExp(s: string) {
 	return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -67,8 +66,6 @@ export class ActivityWatcher {
 	public ActivityIsTeleport: boolean = false;
 	public ActivityServerType: ServerType = ServerType.PUBLIC;
 
-	public BloxstrapRPCEvent = new EventEmitter();
-	public CustomBloxstrapRPCEvent = PluginEventEmitter;
 	// OnGameJoin - Player joined the game
 	// OnGameLeave - Player left the game
 	// Message - BloxstrapRPC Message
@@ -78,7 +75,7 @@ export class ActivityWatcher {
 
 	constructor(
 		process: ChildProcess,
-		public readonly options: TuxstrapOptions
+		public readonly options: { verbose: boolean, tuxstrapLaunchTime: number }
 	) {
 		this.roblox = process;
 		console.log(
@@ -113,9 +110,9 @@ export class ActivityWatcher {
 				}
 
 				this.ActivityInGame = false;
-				this.ActivityPlaceId = Number.parseInt(match[1]);
-				this.ActivityJobId = match[0];
-				this.ActivityMachineAddress = match[2];
+				this.ActivityPlaceId = Number.parseInt(match[1] || "0");
+				this.ActivityJobId = match[0] || "";
+				this.ActivityMachineAddress = match[2] || "";
 
 				if (this._teleportMarker) {
 					this.ActivityIsTeleport = true;
@@ -123,7 +120,7 @@ export class ActivityWatcher {
 				}
 
 				if (this._reservedTeleportMarker) {
-					this.ActivityServerType = ServerType.RESEREVED;
+					this.ActivityServerType = ServerType.RESERVED;
 					this._reservedTeleportMarker = false;
 				}
 
@@ -152,7 +149,7 @@ export class ActivityWatcher {
 					return;
 				}
 
-				this.ActivityMachineAddress = match[0];
+				this.ActivityMachineAddress = match[0] || "";
 				this.ActivityMachineUDMUX = true;
 
 				console.log(
@@ -180,46 +177,24 @@ export class ActivityWatcher {
 				}
 
 				this.ActivityInGame = true;
-				this.BloxstrapRPCEvent.emit("OnGameJoin");
-				(async () => {
-					const placeIcon = await GetPlaceIcon(
-						await GetUniverseId(this.ActivityPlaceId)
-					);
-					if (this.options.showNotifications) {
-						exec(
-							`curl "${placeIcon}" > /tmp/.tuxstrap.png && magick /tmp/.tuxstrap.png -resize 50x /tmp/.tuxstrap.png`,
-							async () => {
-								try {
-									exec(
-										`notify-send -i /tmp/.tuxstrap.png -a "tuxstrap" -t 3500 -u low "Roblox" "${(
-											await GetPlaceDetails(
-												await GetUniverseId(
-													this.ActivityPlaceId
-												)
-											)
-										).name
-											.replace("$", "\\$")
-											.replace('"', '\\"')
-											.replace("\n", "\\n")}\nPlace ID: ${this.ActivityPlaceId
-										}${this.ActivityMachineUDMUX
-											? "\\n<small>(UDMUX Protected)</small>"
-											: ""
-										}"`
-									);
-								} catch { }
-							}
-						);
-					}
-				})();
+				
+				// Emit game join event using global event collector
+				const gameJoinData: GameJoinAction = {
+					ipAddr: this.ActivityMachineAddress,
+					placeId: this.ActivityPlaceId.toString(),
+					jobId: this.ActivityJobId,
+					serverType: this.ActivityServerType,
+					ipAddrUdmux: this.ActivityMachineUDMUX ? this.ActivityMachineAddress : undefined
+				};
+				eventCollector.emitGameJoin(gameJoinData);
+				
 				console.log(
 					"[ActivityWatcher]",
 					`Joined Game (${this.ActivityPlaceId}/${this.ActivityJobId}/${this.ActivityMachineAddress})`
 				);
-				// OnGameJoin?.Invoke(this, new EventArgs());
 			}
 		} else if (this.ActivityInGame && this.ActivityPlaceId !== 0) {
 			if (line.includes(GameDisconnectedEntry)) {
-				this.BloxstrapRPCEvent.emit("OnGameLeave");
 				console.log(
 					"[ActivityWatcher]",
 					`Disconnected from Game (${this.ActivityPlaceId}/${this.ActivityJobId}/${this.ActivityMachineAddress})`
@@ -233,40 +208,19 @@ export class ActivityWatcher {
 				this.ActivityIsTeleport = false;
 				this.ActivityServerType = ServerType.PUBLIC;
 
-				this.BloxstrapRPCEvent.emit("OnGameLeave");
-				// OnGameLeave?.Invoke(this, new EventArgs());
+				// Emit game leave event using global event collector
+				eventCollector.emitGameLeave();
 			} else if (line.includes(GameTeleportingEntry)) {
-				this.BloxstrapRPCEvent.emit("OnTeleportInit");
 				console.log(
 					"[ActivityWatcher]",
 					`Initiating teleport to server (${this.ActivityPlaceId}/${this.ActivityJobId}/${this.ActivityMachineAddress})`
 				);
 				this._teleportMarker = true;
-				if (this.options.showNotifications)
-					exec(
-						`notify-send -i ${path.join(
-							__dirname,
-							"..",
-							"assets/roblox.png"
-						)} -a "tuxstrap" -u low "Teleport Warning" "${(
-							await GetPlaceDetails(
-								await GetUniverseId(this.ActivityPlaceId)
-							)
-						).name
-							.replace("$", "\\$")
-							.replace('"', '\\"')
-							.replace(
-								"\n",
-								"\\n"
-							)} is teleporting you to another server."`
-					);
 			} else if (
 				this._teleportMarker &&
 				line.includes(GameJoiningReservedServerEntry)
 			) {
 				this._reservedTeleportMarker = true;
-				this.BloxstrapRPCEvent.emit("OnTeleportJoin");
-				// if (this.options.showNotifications) exec(`notify-send -i ${path.join(__dirname,"..","assets/roblox.png")} -a "tuxstrap" -u low "Teleporting" "${(await GetPlaceDetails(await GetUniverseId(this.ActivityPlaceId))).name.replace("$","\\$").replace("\"","\\\"").replace("\n","\\n")} is teleporting you to a reserved server."`);
 			} else if (line.includes(GameMessageEntry)) {
 				const match: RegExpMatchArray = line.match(
 					GameMessageEntryPattern
@@ -276,7 +230,7 @@ export class ActivityWatcher {
 				let message: Message | undefined;
 
 				try {
-					message = JSON.parse(match[0]);
+					message = JSON.parse(match[0] || "{}");
 				} catch (e_) {
 					console.error(
 						"[ActivityWatcher]",
@@ -292,11 +246,12 @@ export class ActivityWatcher {
 				}
 
 				try {
-					PluginEventEmitter.emit(message.command, message.data);
-					if (message.command === "SetRichPresence") {
-						this.BloxstrapRPCEvent.emit("Message", message.data);
-						return;
-					}
+					// Emit BloxstrapRPC event using global event collector
+					const rpcData: BloxstrapRPCAction = {
+						type: message.command,
+						data: message.data
+					};
+					eventCollector.emitBloxstrapRPC(rpcData);
 				} catch { }
 			} else if (line.includes(GamePlayerJoinLeaveEntry)) {
 				const match: RegExpMatchArray = line.match(
@@ -304,14 +259,27 @@ export class ActivityWatcher {
 				) as RegExpMatchArray;
 				match.splice(0, 1);
 
-				this.BloxstrapRPCEvent.emit("PlayerEvent", match[0] === "added" ? "JOIN" : "LEAVE", match[1], match[2]);
+				// Emit player join/leave event using global event collector
+				const playerAction: PlrJoinLeaveAction = {
+					name: match[1] || "",
+					id: match[2] || "",
+					action: match[0] === "added" ? "JOIN" : "LEAVE"
+				};
+
+				if (playerAction.action === "JOIN") {
+					eventCollector.emitPlayerJoin(playerAction);
+				} else {
+					eventCollector.emitPlayerLeave(playerAction);
+				}
 			} else if (line.includes(GameMessageLogEntry)) {
 				const match: RegExpMatchArray = line.match(
 					GameMessageLogPattern
 				) as RegExpMatchArray;
 				match.splice(0, 1);
 
-				this.BloxstrapRPCEvent.emit("ChatMessage", match[0]);
+				// Note: Chat messages are not part of the standard event system
+				// They can be handled separately if needed
+				console.log("[ActivityWatcher] Chat message:", match[0]);
 			}
 		}
 	}
@@ -358,8 +326,7 @@ export class ActivityWatcher {
 					"[ActivityWatcher]",
 					`Cannot find Roblox's newest logfile!`
 				);
-				this.roblox.kill(1);
-				exec("pkill -9 sober");
+				this.roblox.kill("SIGKILL");
 				process.exit(1);
 			}
 		}
@@ -369,7 +336,7 @@ export class ActivityWatcher {
 		if (!this.roblox) throw `activityWatcher.roblox is undefined!`;
 		if (!this.roblox.stdout) {
 			console.error("[ActivityWatcher]", `Roblox doesn't have stdout!`);
-			this.roblox.kill(1);
+			this.roblox.kill("SIGKILL");
 			process.exit(1);
 		}
 
@@ -380,7 +347,8 @@ export class ActivityWatcher {
 			`Obtained r+ logfile handle: ${robloxLogfile}`
 		);
 
-		this.BloxstrapRPCEvent.emit("ObtainLog");
+		// Log obtained - this event is not part of the standard event system
+		console.log("[ActivityWatcher] Log file obtained and ready for monitoring");
 
 		try {
 			let position = 0;
