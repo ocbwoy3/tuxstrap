@@ -61,7 +61,7 @@ import "./plugins";
 		console.log(`Using ${process.argv0.includes("/nix/store") ? "Nix" : "built"} version of TuxStrap!! ${process.argv0}`)
 	}
 
-	registerPluginsAllFinal();
+	await registerPluginsAllFinal();
 
 	registerXDG("tuxstrap.desktop");
 

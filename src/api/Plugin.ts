@@ -111,9 +111,9 @@ export function registerPlugin(
 	})
 }
 
-export function registerPluginsAllFinal() {
+export async function registerPluginsAllFinal() {
 	for (const f of pluginsRegisterFuncs) {
-		f()
+		await f()
 	}
 }
 

@@ -1,3 +1,4 @@
+import { SendNotification } from "../api/linux";
 import { registerPlugin } from "../api/Plugin";
 
 registerPlugin(
@@ -7,7 +8,9 @@ registerPlugin(
 		forceEnable: true,
 		configPrio: -9e9
 	},
-	(plugin) => {
+	async (plugin) => {
+
+		await SendNotification("Roblox", "Launching with TuxStrap");
 
 		/* FFlags */
 		const fflags = {
