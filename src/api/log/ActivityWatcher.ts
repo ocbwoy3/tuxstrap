@@ -1,12 +1,14 @@
 import { ChildProcess } from "child_process";
-import {
-	LOGFILE_PATH,
-	RECENT_LOG_THRESHOLD_SECONDS,
-} from "../constants";
+import { LOGFILE_PATH, RECENT_LOG_THRESHOLD_SECONDS } from "../constants";
 import { open } from "fs/promises";
 import path, { join } from "path";
 import { getMostRecentFile } from "../Utils";
-import type { Message, GameJoinAction, PlrJoinLeaveAction, BloxstrapRPCAction } from "../types";
+import type {
+	Message,
+	GameJoinAction,
+	PlrJoinLeaveAction,
+	BloxstrapRPCAction
+} from "../types";
 import { ServerType } from "../types";
 import { eventCollector } from "../EventCollector";
 
@@ -39,7 +41,8 @@ const GameMessageEntry = "[FLog::Output] [BloxstrapRPC]";
 const GameLeavingEntry = "[FLog::SingleSurfaceApp] leaveUGCGameInternal";
 
 const GamePlayerJoinLeaveEntry = "[ExpChat/mountClientApp (Trace)] - Player ";
-const GameMessageLogEntry = "[ExpChat/mountClientApp (Debug)] - Incoming MessageReceived Status: ";
+const GameMessageLogEntry =
+	"[ExpChat/mountClientApp (Debug)] - Incoming MessageReceived Status: ";
 
 const GameJoiningEntryPattern =
 	/! Joining game '([0-9a-f\-]{36})' place ([0-9]+) at ([0-9\.]+)/;
@@ -75,7 +78,10 @@ export class ActivityWatcher {
 
 	constructor(
 		process: ChildProcess,
-		public readonly options: { verbose: boolean, tuxstrapLaunchTime: number }
+		public readonly options: {
+			verbose: boolean;
+			tuxstrapLaunchTime: number;
+		}
 	) {
 		this.roblox = process;
 		console.log(
@@ -113,6 +119,14 @@ export class ActivityWatcher {
 				this.ActivityPlaceId = Number.parseInt(match[1] || "0");
 				this.ActivityJobId = match[0] || "";
 				this.ActivityMachineAddress = match[2] || "";
+
+				if (this._teleportMarker || this._reservedTeleportMarker) {
+					eventCollector.emitTeleport({
+						serverType: this._reservedTeleportMarker
+							? ServerType.RESERVED
+							: ServerType.PUBLIC
+					});
+				}
 
 				if (this._teleportMarker) {
 					this.ActivityIsTeleport = true;
@@ -177,17 +191,19 @@ export class ActivityWatcher {
 				}
 
 				this.ActivityInGame = true;
-				
+
 				// Emit game join event using global event collector
 				const gameJoinData: GameJoinAction = {
 					ipAddr: this.ActivityMachineAddress,
 					placeId: this.ActivityPlaceId.toString(),
 					jobId: this.ActivityJobId,
 					serverType: this.ActivityServerType,
-					ipAddrUdmux: this.ActivityMachineUDMUX ? this.ActivityMachineAddress : undefined
+					ipAddrUdmux: this.ActivityMachineUDMUX
+						? this.ActivityMachineAddress
+						: undefined
 				};
 				eventCollector.emitGameJoin(gameJoinData);
-				
+
 				console.log(
 					"[ActivityWatcher]",
 					`Joined Game (${this.ActivityPlaceId}/${this.ActivityJobId}/${this.ActivityMachineAddress})`
@@ -252,7 +268,7 @@ export class ActivityWatcher {
 						data: message.data
 					};
 					eventCollector.emitBloxstrapRPC(rpcData);
-				} catch { }
+				} catch {}
 			} else if (line.includes(GamePlayerJoinLeaveEntry)) {
 				const match: RegExpMatchArray = line.match(
 					GamePlayerJoinLeavePattern
@@ -300,7 +316,8 @@ export class ActivityWatcher {
 		while (true) {
 			console.log(
 				"[ActivityWatcher]",
-				`Obtaining log file (attempt ${attempts + 1
+				`Obtaining log file (attempt ${
+					attempts + 1
 				} of ${MAX_ATTEMPTS})`
 			);
 			const latestFile: { file: string; mtime: Date } | undefined =
@@ -309,7 +326,7 @@ export class ActivityWatcher {
 			if (
 				latestFile &&
 				Date.now() - latestFile.mtime.getTime() <=
-				RECENT_LOG_THRESHOLD_SECONDS * 1000
+					RECENT_LOG_THRESHOLD_SECONDS * 1000
 			) {
 				if (
 					latestFile.mtime.getTime() < this.options.tuxstrapLaunchTime
@@ -348,7 +365,9 @@ export class ActivityWatcher {
 		);
 
 		// Log obtained - this event is not part of the standard event system
-		console.log("[ActivityWatcher] Log file obtained and ready for monitoring");
+		console.log(
+			"[ActivityWatcher] Log file obtained and ready for monitoring"
+		);
 
 		try {
 			let position = 0;

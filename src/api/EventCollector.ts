@@ -1,4 +1,4 @@
-import type { PlrJoinLeaveAction, GameJoinAction, BloxstrapRPCAction, GameState } from "./types";
+import type { PlrJoinLeaveAction, GameJoinAction, BloxstrapRPCAction, GameState, TeleportAction } from "./types";
 import { currentStateManager } from "./CurrentState";
 
 export type EventType = 
@@ -6,6 +6,7 @@ export type EventType =
 	| "GAME_LEAVE" 
 	| "PLAYER_JOIN"
 	| "PLAYER_LEAVE"
+	| "TELEPORT"
 	| "BLOXSTRAP_RPC"
 	| "STATE_CHANGE";
 
@@ -16,6 +17,7 @@ export type EventData = {
 	PLAYER_LEAVE: PlrJoinLeaveAction;
 	BLOXSTRAP_RPC: BloxstrapRPCAction;
 	STATE_CHANGE: GameState;
+	TELEPORT: TeleportAction;
 };
 
 export type EventCallback<T extends EventType> = (data: EventData[T]) => void;
@@ -105,6 +107,13 @@ class EventCollector {
 	 */
 	public emitBloxstrapRPC(rpcData: BloxstrapRPCAction): void {
 		this.emit("BLOXSTRAP_RPC", rpcData);
+	}
+
+	/**
+	 * Emit a teleport event
+	 */
+	public emitTeleport(data: TeleportAction): void {
+		this.emit("TELEPORT", data);
 	}
 
 	/**
