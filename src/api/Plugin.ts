@@ -86,25 +86,34 @@ export class Plugin {
 	}
 }
 
-export const pluginsRegistered: Plugin[] = [];
+let pluginsRegistered: Plugin[] = [];
+let pluginsRegisterFuncs: (()=>void)[] = [];
 
 export function registerPlugin(
 	details: PluginMeta,
 	initFunc: (plugin: Plugin) => void
 ) {
-	if (!details.forceEnable) return;
-	const plugin = new Plugin(details);
-	try {
-		initFunc(plugin);
-		pluginsRegistered.push(plugin);
-		console.log(
-			`[api/Plugin] PluginInit(${plugin.id}): "${plugin.name}" successfully initalized`
-		);
-	} catch (error) {
-		console.error(
-			`[api/Plugin] PluginInitError(${plugin.id}): "${plugin.name}" errored:`,
-			error
-		);
+	pluginsRegisterFuncs.push(()=>{
+		if (!details.forceEnable) return;
+		const plugin = new Plugin(details);
+		try {
+			initFunc(plugin);
+			pluginsRegistered.push(plugin);
+			console.log(
+				`[api/Plugin] PluginInit(${plugin.id}): "${plugin.name}" successfully initalized`
+			);
+		} catch (error) {
+			console.error(
+				`[api/Plugin] PluginInitError(${plugin.id}): "${plugin.name}" errored:`,
+				error
+			);
+		}
+	})
+}
+
+export function registerPluginsAllFinal() {
+	for (const f of pluginsRegisterFuncs) {
+		f()
 	}
 }
 

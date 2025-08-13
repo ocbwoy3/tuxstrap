@@ -1,7 +1,6 @@
 import { $ } from "bun";
 import { SOBER_APPID } from "./api/constants";
 import { libocbwoy3Greet, setConsoleTitle } from "@ocbwoy3/libocbwoy3";
-import { initPlugins } from "./plugins";
 import { generateConfigFile } from "./api/sober/ConfigManager";
 import { exec } from "child_process";
 import { ActivityWatcher } from "./api/log/ActivityWatcher";
@@ -11,6 +10,8 @@ import {
 	tuxstrapDesktopEntry
 } from "./api/sober/DesktopEntry";
 import { join } from "path";
+import { registerPluginsAllFinal } from "./api/Plugin";
+import "./plugins";
 
 (async () => {
 	(() => {
@@ -60,9 +61,9 @@ import { join } from "path";
 		console.log(`Using ${process.argv0.includes("/nix/store") ? "Nix" : "built"} version of TuxStrap!! ${process.argv0}`)
 	}
 
-	registerXDG("tuxstrap.desktop");
+	registerPluginsAllFinal();
 
-	initPlugins();
+	registerXDG("tuxstrap.desktop");
 
 	generateConfigFile();
 
