@@ -9,7 +9,7 @@
 			url = "github:baileyluTCD/bun2nix";
 			inputs.nixpkgs.follows = "nixpkgs";
 			inputs.systems.follows = "systems";
-		}
+		};
 	};
 
 	nixConfig = {

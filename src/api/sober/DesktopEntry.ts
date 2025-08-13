@@ -46,7 +46,7 @@ export function createDesktopEntry(d: DesktopEntry, realPath?: string) {
 }
 
 export async function registerXDG(fileName: string) {
-	if (process.argv0 === "tuxstrap") {
+	if (process.argv0.endsWith("bin/tuxstrap")) {
 		for (const mimeType of tuxstrapDesktopEntry.mimeTypes) {
 			const r = await $`xdg-mime default ${fileName} ${mimeType}`.nothrow().quiet();
 			if (r.exitCode === 0) {

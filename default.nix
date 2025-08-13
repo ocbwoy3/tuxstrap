@@ -2,7 +2,7 @@
 
 mkBunDerivation {
 	packageJson = ./package.json;
-	src = ./.;
+	src = ./src;
 	bunNix = ./bun.nix;
-	index = "src/index.ts";
+	index = "index.ts";
 }
