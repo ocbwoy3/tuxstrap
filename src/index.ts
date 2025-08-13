@@ -17,6 +17,7 @@ import { join } from "path";
 		const firstRobloxURLArg = process.argv.find(
 			(a) => a === "tuxstrap://gendesktoproblox"
 		);
+
 		if (
 			!!firstRobloxURLArg &&
 			process.argv.find(
@@ -30,7 +31,7 @@ import { join } from "path";
 			console.log(
 				createDesktopEntry(
 					tuxstrapDesktopEntry,
-					join(__dirname, process.argv0)
+					join(__dirname, process.argv0).replace(/^\/build\//,"/")
 				).replaceAll("org.vinegarhq.Sober", "tuxstrap")
 			);
 			process.exit(0);

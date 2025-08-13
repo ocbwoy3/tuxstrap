@@ -36,22 +36,23 @@
 	in
 		{
 			packages = eachSystem (system: {
-			default = pkgsFor.${system}.callPackage ./default.nix {
-				inherit (bun2nix.lib.${system}) mkBunDerivation;
-			};
+				default = pkgsFor.${system}.callPackage ./default.nix {
+					inherit (bun2nix.lib.${system}) mkBunDerivation;
+				};
 			});
 
 			devShells = eachSystem (system: {
-			default = pkgsFor.${system}.mkShell {
-				packages = with pkgsFor.${system}; [
-					bun
-					bun2nix.packages.${system}.default
-				];
+				default = pkgsFor.${system}.mkShell {
+					packages = with pkgsFor.${system}; [
+						bun
+						bun2nix.packages.${system}.default
+					];
 
-				shellHook = ''
-					bun install --frozen-lockfile
-				'';
-			};
-		});
+					shellHook = ''
+						bun install --frozen-lockfile
+					'';
+				};
+			}
+		);
 	};
 }
