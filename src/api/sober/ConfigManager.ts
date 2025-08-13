@@ -23,8 +23,8 @@ export function generateConfiguration() {
 	// Lower configPrio means it merges first
 	const plugins = getPlugins().sort((a, b) => a.configPrio - b.configPrio);
 
-	let currentConfig: SoberConfig = { ...defaultConfig };
-	let currentFFlags: fflagList = {};
+	var currentConfig: SoberConfig = { ...defaultConfig };
+	var currentFFlags: fflagList = {};
 
 	for (const plugin of plugins) {
 		if (plugin.soberConfig) {

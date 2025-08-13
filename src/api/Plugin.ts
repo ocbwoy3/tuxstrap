@@ -93,11 +93,16 @@ export function registerPlugin(
 	details: PluginMeta,
 	initFunc: (plugin: Plugin) => void
 ) {
-	pluginsRegisterFuncs.push(()=>{
+	pluginsRegisterFuncs.push(async()=>{
 		if (!details.forceEnable) return;
+		if (!details.configPrio) details.configPrio = 0;
+		while (true) {
+			if (!pluginsRegistered.find(a=>a.configPrio===details.configPrio)) break;
+			details.configPrio++;
+		}
 		const plugin = new Plugin(details);
 		try {
-			initFunc(plugin);
+			await initFunc(plugin);
 			pluginsRegistered.push(plugin);
 			console.log(
 				`[api/Plugin] PluginInit(${plugin.id}): "${plugin.name}" successfully initalized`
