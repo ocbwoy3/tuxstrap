@@ -31,7 +31,7 @@ import { join } from "path";
 			console.log(
 				createDesktopEntry(
 					tuxstrapDesktopEntry,
-					join(__dirname, process.argv0).replace(/^\/build\//,"/")
+					join(__dirname, process.argv0).replace(/^\/build\//,"/").replace(/^\/src\//,"/")
 				).replaceAll("org.vinegarhq.Sober", "tuxstrap")
 			);
 			process.exit(0);
@@ -55,7 +55,8 @@ import { join } from "path";
 	setConsoleTitle("TuxStrap");
 	libocbwoy3Greet();
 
-	if (process.argv0.endsWith("bin/tuxstrap")) {
+	console.log(process.argv0, process.argv)
+	if (process.argv0.endsWith("bin/tuxstrap") || process.argv0 === ("/run/current-system/sw/bin/tuxstrap")) {
 		console.log(`Using ${process.argv0.includes("/nix/store") ? "Nix" : "built"} version of TuxStrap!! ${process.argv0}`)
 	}
 
