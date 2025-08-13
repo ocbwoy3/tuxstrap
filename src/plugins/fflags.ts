@@ -3,8 +3,8 @@ import { registerPlugin } from "../api/Plugin";
 
 registerPlugin(
 	{
-		name: "TuxStrap Default",
-		id: "tuxstrap",
+		name: "Default FFlags",
+		id: "tuxstrap-fflags",
 		forceEnable: true,
 		configPrio: -9e9
 	},

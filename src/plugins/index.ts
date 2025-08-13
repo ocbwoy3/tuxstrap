@@ -1,3 +1,3 @@
-import "./default";
-import "./debugPlugin";
+import "./fflags";
+import "./notifs";
 import "./systemIO"

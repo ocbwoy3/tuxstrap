@@ -4,8 +4,8 @@ import { SendNotification } from "../api/linux";
 
 registerPlugin(
 	{
-		name: "TuxStrap Notifs",
-		id: "tuxstrap-notif",
+		name: "Game Notifications",
+		id: "tuxstrap-notifs",
 		forceEnable: true,
 		configPrio: -9e9
 	},
