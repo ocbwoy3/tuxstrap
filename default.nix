@@ -5,6 +5,12 @@ mkBunDerivation {
 	src = ./src;
 	bunNix = ./bun.nix;
 	index = "index.ts";
+	buildFlags = [
+		"--production"
+		"--compile"
+		"--minify"
+		"--bytecode"
+	];
 	installPhase = ''
 		mkdir -p $out/bin
 		cp ./tuxstrap $out/bin

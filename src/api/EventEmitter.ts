@@ -1,5 +1,9 @@
 import { eventCollector } from "./EventCollector";
-import type { PlrJoinLeaveAction, GameJoinAction, BloxstrapRPCAction } from "./types";
+import type {
+	PlrJoinLeaveAction,
+	GameJoinAction,
+	BloxstrapRPCAction
+} from "./types";
 
 /**
  * Main EventEmitter class for emitting events to all registered plugins
@@ -68,4 +72,4 @@ export class EventEmitter {
 	public static clearAllListeners(): void {
 		eventCollector.clearAllListeners();
 	}
-} 
+}

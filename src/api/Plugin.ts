@@ -1,6 +1,16 @@
-import type { CurrentStateAPI, fflagList, fflagValue, SoberConfig } from "./types";
+import type {
+	CurrentStateAPI,
+	fflagList,
+	fflagValue,
+	SoberConfig
+} from "./types";
 import { currentStateManager } from "./CurrentState";
-import { eventCollector, type EventType, type EventCallback, type EventSubscription } from "./EventCollector";
+import {
+	eventCollector,
+	type EventType,
+	type EventCallback,
+	type EventSubscription
+} from "./EventCollector";
 
 type PluginMeta = {
 	name: string;
@@ -49,7 +59,10 @@ export class Plugin {
 	/**
 	 * Subscribe to events using the new event system
 	 */
-	public on<T extends EventType>(eventType: T, callback: EventCallback<T>): EventSubscription {
+	public on<T extends EventType>(
+		eventType: T,
+		callback: EventCallback<T>
+	): EventSubscription {
 		return eventCollector.on(eventType, callback);
 	}
 
@@ -57,13 +70,23 @@ export class Plugin {
 	 * Legacy method for backward compatibility - maps to new event system
 	 */
 	public hookLog = {
-		GAME_JOIN: (callback: EventCallback<"GAME_JOIN">) => this.on("GAME_JOIN", callback),
-		GAME_LEAVE: (callback: EventCallback<"GAME_LEAVE">) => this.on("GAME_LEAVE", callback),
-		JOIN_LEAVE: (callback: EventCallback<"PLAYER_JOIN" | "PLAYER_LEAVE">) => {
+		GAME_JOIN: (callback: EventCallback<"GAME_JOIN">) =>
+			this.on("GAME_JOIN", callback),
+		GAME_LEAVE: (callback: EventCallback<"GAME_LEAVE">) =>
+			this.on("GAME_LEAVE", callback),
+		JOIN_LEAVE: (
+			callback: EventCallback<"PLAYER_JOIN" | "PLAYER_LEAVE">
+		) => {
 			// Subscribe to both player join and leave events
-			const joinSub = this.on("PLAYER_JOIN", callback as EventCallback<"PLAYER_JOIN">);
-			const leaveSub = this.on("PLAYER_LEAVE", callback as EventCallback<"PLAYER_LEAVE">);
-			
+			const joinSub = this.on(
+				"PLAYER_JOIN",
+				callback as EventCallback<"PLAYER_JOIN">
+			);
+			const leaveSub = this.on(
+				"PLAYER_LEAVE",
+				callback as EventCallback<"PLAYER_LEAVE">
+			);
+
 			return {
 				unsubscribe: () => {
 					joinSub.unsubscribe();
@@ -71,7 +94,8 @@ export class Plugin {
 				}
 			};
 		},
-		BLOXSTRAP: (callback: EventCallback<"BLOXSTRAP_RPC">) => this.on("BLOXSTRAP_RPC", callback)
+		BLOXSTRAP: (callback: EventCallback<"BLOXSTRAP_RPC">) =>
+			this.on("BLOXSTRAP_RPC", callback)
 	};
 
 	get currentState(): CurrentStateAPI {
@@ -87,17 +111,22 @@ export class Plugin {
 }
 
 let pluginsRegistered: Plugin[] = [];
-let pluginsRegisterFuncs: (()=>void)[] = [];
+let pluginsRegisterFuncs: (() => void)[] = [];
 
 export function registerPlugin(
 	details: PluginMeta,
 	initFunc: (plugin: Plugin) => void
 ) {
-	pluginsRegisterFuncs.push(async()=>{
+	pluginsRegisterFuncs.push(async () => {
 		if (!details.forceEnable) return;
 		if (!details.configPrio) details.configPrio = 0;
 		while (true) {
-			if (!pluginsRegistered.find(a=>a.configPrio===details.configPrio)) break;
+			if (
+				!pluginsRegistered.find(
+					(a) => a.configPrio === details.configPrio
+				)
+			)
+				break;
 			details.configPrio++;
 		}
 		const plugin = new Plugin(details);
@@ -113,15 +142,15 @@ export function registerPlugin(
 				error
 			);
 		}
-	})
+	});
 }
 
 export async function registerPluginsAllFinal() {
 	for (const f of pluginsRegisterFuncs) {
-		await f()
+		await f();
 	}
 }
 
 export function getPlugins(): Plugin[] {
-	return pluginsRegistered
+	return pluginsRegistered;
 }

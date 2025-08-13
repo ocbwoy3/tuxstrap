@@ -1,9 +1,15 @@
-import type { PlrJoinLeaveAction, GameJoinAction, BloxstrapRPCAction, GameState, TeleportAction } from "./types";
+import type {
+	PlrJoinLeaveAction,
+	GameJoinAction,
+	BloxstrapRPCAction,
+	GameState,
+	TeleportAction
+} from "./types";
 import { currentStateManager } from "./CurrentState";
 
-export type EventType = 
+export type EventType =
 	| "GAME_JOIN"
-	| "GAME_LEAVE" 
+	| "GAME_LEAVE"
 	| "PLAYER_JOIN"
 	| "PLAYER_LEAVE"
 	| "TELEPORT"
@@ -32,7 +38,10 @@ class EventCollector {
 	/**
 	 * Subscribe to an event type
 	 */
-	public on<T extends EventType>(eventType: T, callback: EventCallback<T>): EventSubscription {
+	public on<T extends EventType>(
+		eventType: T,
+		callback: EventCallback<T>
+	): EventSubscription {
 		if (!this.listeners.has(eventType)) {
 			this.listeners.set(eventType, new Set());
 		}
@@ -56,11 +65,14 @@ class EventCollector {
 	public emit<T extends EventType>(eventType: T, data: EventData[T]): void {
 		const eventListeners = this.listeners.get(eventType);
 		if (eventListeners) {
-			eventListeners.forEach(callback => {
+			eventListeners.forEach((callback) => {
 				try {
 					callback(data);
 				} catch (error) {
-					console.error(`Error in event listener for ${eventType}:`, error);
+					console.error(
+						`Error in event listener for ${eventType}:`,
+						error
+					);
 				}
 			});
 		}
@@ -146,4 +158,4 @@ class EventCollector {
 }
 
 // Export a singleton instance
-export const eventCollector = new EventCollector(); 
+export const eventCollector = new EventCollector();

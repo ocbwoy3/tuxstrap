@@ -11,7 +11,7 @@
 		"typescript": "^5"
 	},
 	"scripts": {
-		"dev": "bun run src/index.ts \"roblox://\""
+		"dev": "clear && NODE_ENV=development bun run src/index.ts \"roblox://\""
 	},
 	"dependencies": {
 		"@ocbwoy3/libocbwoy3": "^0.0.6",

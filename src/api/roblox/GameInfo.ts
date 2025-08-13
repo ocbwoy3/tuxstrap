@@ -7,7 +7,7 @@ const GameNameCache = new TimedDataCache<string, string>(900); // 30 minutes
 let cookies = "";
 
 try {
-	cookies = readFileSync(ROBLOX_COOKIES_FILE,"utf-8")?.toString() || "";
+	cookies = readFileSync(ROBLOX_COOKIES_FILE, "utf-8")?.toString() || "";
 } catch {}
 
 export async function getGameDetails(placeId: string): Promise<string | null> {

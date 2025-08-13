@@ -1,4 +1,8 @@
-import type { PlrJoinLeaveAction, GameJoinAction, BloxstrapRPCAction } from "./types";
+import type {
+	PlrJoinLeaveAction,
+	GameJoinAction,
+	BloxstrapRPCAction
+} from "./types";
 import { eventCollector } from "./EventCollector";
 
 /**
@@ -6,31 +10,31 @@ import { eventCollector } from "./EventCollector";
  */
 export function hookRobloxLogAction(
 	hookableThing: "JOIN_LEAVE",
-	func: (a: PlrJoinLeaveAction) => void
+	func: (a: PlrJoinLeaveAction) => any
 ): void;
 export function hookRobloxLogAction(
 	hookableThing: "GAME_JOIN",
-	func: (a: GameJoinAction) => void
+	func: (a: GameJoinAction) => any
 ): void;
 export function hookRobloxLogAction(
 	hookableThing: "GAME_LEAVE",
-	func: () => void
+	func: () => any
 ): void;
 export function hookRobloxLogAction(
 	hookableThing: "BLOXSTRAP",
-	func: (a: BloxstrapRPCAction) => void
+	func: (a: BloxstrapRPCAction) => any
 ): void;
 
 export function hookRobloxLogAction(
 	hookableThing: "JOIN_LEAVE" | "GAME_JOIN" | "GAME_LEAVE" | "BLOXSTRAP",
 	func:
-		| ((a: PlrJoinLeaveAction) => void)
-		| ((a: GameJoinAction) => void)
-		| ((a: BloxstrapRPCAction) => void)
-		| (() => void)
+		| ((a: PlrJoinLeaveAction) => any)
+		| ((a: GameJoinAction) => any)
+		| ((a: BloxstrapRPCAction) => any)
+		| (() => any)
 ): void {
-	console.warn("hookRobloxLogAction is deprecated. Use the new event system instead.");
-	
+	// console.warn("hookRobloxLogAction is deprecated. Use the new event system instead.");
+
 	// For backward compatibility, we'll still register the callback
 	// but it's recommended to use the new event system
 	switch (hookableThing) {

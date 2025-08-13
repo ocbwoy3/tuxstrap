@@ -12,6 +12,11 @@ import {
 import { join } from "path";
 import { registerPluginsAllFinal } from "./api/Plugin";
 import "./plugins";
+import { eventCollector } from "./api/EventCollector";
+
+eventCollector.on("BLOXSTRAP_RPC", ({ type, data }) => {
+	console.log("[BLOXSTRAPRPC]", type, data);
+});
 
 (async () => {
 	(() => {
@@ -32,7 +37,9 @@ import "./plugins";
 			console.log(
 				createDesktopEntry(
 					tuxstrapDesktopEntry,
-					join(__dirname, process.argv0).replace(/^\/build\//,"/").replace(/^\/src\//,"/")
+					join(__dirname, process.argv0)
+						.replace(/^\/build\//, "/")
+						.replace(/^\/src\//, "/")
 				).replaceAll("org.vinegarhq.Sober", "tuxstrap")
 			);
 			process.exit(0);
@@ -56,14 +63,23 @@ import "./plugins";
 	setConsoleTitle("TuxStrap");
 	libocbwoy3Greet();
 
-	console.log(process.argv0, process.argv)
-	if (process.argv0.endsWith("bin/tuxstrap") || process.argv0 === ("/run/current-system/sw/bin/tuxstrap")) {
-		console.log(`Using ${process.argv0.includes("/nix/store") ? "Nix" : "built"} version of TuxStrap!! ${process.argv0}`)
+	if (
+		process.argv0.endsWith("bin/tuxstrap") ||
+		process.argv0 === "/run/current-system/sw/bin/tuxstrap"
+	) {
+		console.log(
+			`Using ${process.argv0.includes("/nix/store") ? "Nix" : "built"} version of TuxStrap!! ${process.argv0}`
+		);
 	}
+
+	// await createWaylandContext(); <-- we need c for this shit
+	// await copyToClipboard("haha funny"); <-- and this
 
 	await registerPluginsAllFinal();
 
-	registerXDG("tuxstrap.desktop");
+	if (process.env.NODE_ENV !== "development") {
+		registerXDG("tuxstrap.desktop");
+	}
 
 	generateConfigFile();
 
@@ -76,7 +92,7 @@ import "./plugins";
 	const child = exec(`flatpak run ${SOBER_APPID} "${robloxLaunchURL}"`);
 
 	const watcher = new ActivityWatcher(child, {
-		verbose: true,
+		verbose: false,
 		tuxstrapLaunchTime: Date.now()
 	});
 

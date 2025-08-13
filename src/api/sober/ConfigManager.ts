@@ -18,7 +18,7 @@ const defaultConfig: SoberConfig = {
 };
 
 export function generateConfiguration() {
-	console.log("[api/sober/ConfigManager] Generating config file")
+	console.log("[api/sober/ConfigManager] Generating config file");
 
 	// Lower configPrio means it merges first
 	const plugins = getPlugins().sort((a, b) => a.configPrio - b.configPrio);
@@ -36,8 +36,7 @@ export function generateConfiguration() {
 	}
 
 	const finalConfig = {
-		"*":
-			`WARNING: This file has been modified with TuxStrap. Launching it will discard all changes to this file. TuxStrap version: ${TUXSTRAP_VERSION}`,
+		"*": `WARNING: This file has been modified with TuxStrap. Launching it will discard all changes to this file. TuxStrap version: ${TUXSTRAP_VERSION}`,
 		allow_gamepad_permission: currentConfig.allowGamepad,
 		bring_back_oof: currentConfig.bringBackOof,
 		close_on_leave: currentConfig.closeOnLeaave,
@@ -57,7 +56,7 @@ export function generateConfiguration() {
 }
 
 export function generateConfigFile() {
-	const content = JSON.stringify(generateConfiguration(),undefined,"\t")
+	const content = JSON.stringify(generateConfiguration(), undefined, "\t");
 	writeFileSync(SOBER_CONFIG_PATH, content);
 	console.log(`[api/sober/ConfigManager] Updated ${SOBER_CONFIG_PATH}`);
 }

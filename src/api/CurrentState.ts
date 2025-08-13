@@ -1,4 +1,9 @@
-import type { GameState, PlayerInfo, GameJoinAction, PlrJoinLeaveAction } from "./types";
+import type {
+	GameState,
+	PlayerInfo,
+	GameJoinAction,
+	PlrJoinLeaveAction
+} from "./types";
 import { ServerType } from "./types";
 
 export class CurrentStateManager {
@@ -29,7 +34,7 @@ export class CurrentStateManager {
 	 */
 	onStateChange(callback: (state: GameState) => void): () => void {
 		this.stateChangeCallbacks.push(callback);
-		
+
 		// Return unsubscribe function
 		return () => {
 			const index = this.stateChangeCallbacks.indexOf(callback);
@@ -110,14 +115,18 @@ export class CurrentStateManager {
 			};
 
 			// Check if player already exists
-			const existingPlayerIndex = this.currentState.players.findIndex(p => p.id === action.id);
+			const existingPlayerIndex = this.currentState.players.findIndex(
+				(p) => p.id === action.id
+			);
 			if (existingPlayerIndex === -1) {
 				this.currentState.players.push(playerInfo);
 				this.notifyStateChange();
 			}
 		} else if (action.action === "LEAVE") {
 			// Remove player from the list
-			this.currentState.players = this.currentState.players.filter(p => p.id !== action.id);
+			this.currentState.players = this.currentState.players.filter(
+				(p) => p.id !== action.id
+			);
 			this.notifyStateChange();
 		}
 	}
@@ -127,7 +136,7 @@ export class CurrentStateManager {
 	 */
 	private notifyStateChange(): void {
 		const stateCopy = this.getCurrentState();
-		this.stateChangeCallbacks.forEach(callback => {
+		this.stateChangeCallbacks.forEach((callback) => {
 			try {
 				callback(stateCopy);
 			} catch (error) {
@@ -138,4 +147,4 @@ export class CurrentStateManager {
 }
 
 // Create a singleton instance
-export const currentStateManager = new CurrentStateManager(); 
+export const currentStateManager = new CurrentStateManager();

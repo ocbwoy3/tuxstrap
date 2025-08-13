@@ -32,7 +32,7 @@ export type BloxstrapRPCAction = {
 
 export type TeleportAction = {
 	serverType: ServerType;
-}
+};
 
 export interface Message {
 	command: string;

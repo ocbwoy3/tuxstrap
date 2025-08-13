@@ -2,7 +2,7 @@ import { homedir } from "os";
 
 export const TUXSTRAP_VERSION = "2.0.0";
 
-export const SOBER_APPID = "org.vinegarhq.Sober"
+export const SOBER_APPID = "org.vinegarhq.Sober";
 export const SOBER_PATH = `${homedir()}/.var/app/org.vinegarhq.Sober`;
 export const LAUNCH_COMMAND = "flatpak run org.vinegarhq.Sober";
 export const LOGFILE_PATH = `${SOBER_PATH}/data/sober/appData/logs/`;
