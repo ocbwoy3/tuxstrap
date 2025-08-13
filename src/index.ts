@@ -76,7 +76,7 @@ import "./plugins";
 	const child = exec(`flatpak run ${SOBER_APPID} "${robloxLaunchURL}"`);
 
 	const watcher = new ActivityWatcher(child, {
-		verbose: false,
+		verbose: true,
 		tuxstrapLaunchTime: Date.now()
 	});
 

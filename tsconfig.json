@@ -25,7 +25,5 @@
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
-
-		"baseUrl": "./src/",
 	},
 }

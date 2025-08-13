@@ -10,6 +10,7 @@ export const RECENT_LOG_THRESHOLD_SECONDS = 15;
 
 export const LOCAL_CONFIG_ROOT = `${homedir()}/.config/tuxstrap`;
 export const SOBER_CONFIG_PATH = `${SOBER_PATH}/config/sober/config.json`;
+export const ROBLOX_COOKIES_FILE = `${SOBER_PATH}/data/sober/cookies`;
 
 export const DISCORD_APPID = "1005469189907173486";
 export const SMALL_IMAGE_KEY = "roblox";
