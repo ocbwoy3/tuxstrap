@@ -26,9 +26,12 @@ import { eventCollector } from "./api/EventCollector";
 	if (helpSwitch) {
 		console.log(
 			`TuxStrap - Basically Bloxstrap for Linux!
-			
+
 		List FFlag/Plugin profiles:
 		\\ttuxstrap --list-plugins
+
+		Enable versbose mode for Roblox logs:
+		\\ttuxstrap -v / --verbose
 
 		Enable a plugin:
 		\\ttuxstrap +super
@@ -170,8 +173,12 @@ eventCollector.on("BLOXSTRAP_RPC", ({ type, data }) => {
 
 	const child = exec(`flatpak run ${SOBER_APPID} "${robloxLaunchURL}"`);
 
+	const isVerbose = process.argv.find(
+		(a) => (a === "-v") || (a === "--verbose")
+	);
+
 	const watcher = new ActivityWatcher(child, {
-		verbose: false,
+		verbose: !!isVerbose,
 		tuxstrapLaunchTime: Date.now()
 	});
 
