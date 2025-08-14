@@ -1,6 +1,18 @@
+const firstRobloxURLArgX = process.argv.find(
+	(a) => a === "tuxstrap://gendesktoproblox"
+);
+
+if (!firstRobloxURLArgX) {
+	console.log(process.argv, process.argv0)
+}
+
 import { $ } from "bun";
 import { SOBER_APPID, TUXSTRAP_VERSION } from "./api/constants";
-import { _libocbwoy3Version, libocbwoy3Greet, setConsoleTitle } from "@ocbwoy3/libocbwoy3";
+import {
+	_libocbwoy3Version,
+	libocbwoy3Greet,
+	setConsoleTitle
+} from "@ocbwoy3/libocbwoy3";
 import { generateConfigFile } from "./api/sober/ConfigManager";
 import { exec } from "child_process";
 import { ActivityWatcher } from "./api/log/ActivityWatcher";
@@ -14,18 +26,14 @@ import { getPluginInfos, registerPluginsAllFinal } from "./api/Plugin";
 import "./plugins";
 import { eventCollector } from "./api/EventCollector";
 
-(()=>{
+(() => {
+	const listPluginsSwitch = process.argv.find((a) => a === "--list-plugins");
 
-	const listPluginsSwitch = process.argv.find(
-		(a) => a === "--list-plugins"
-	);
-
-	const helpSwitch = process.argv.find(
-		(a) => (a === "-h") || (a === "--help")
-	);
+	const helpSwitch = process.argv.find((a) => a === "-h" || a === "--help");
 
 	if (helpSwitch) {
-		console.log(`TuxStrap - Basically Bloxstrap for Linux!
+		console.log(
+			`TuxStrap - Basically Bloxstrap for Linux!
 			
 		List FFlag/Plugin profiles:
 		\\ttuxstrap --list-plugins
@@ -43,13 +51,22 @@ import { eventCollector } from "./api/EventCollector";
 		\\ttuxstrap +super +unstable -dbus
 
 		GitHub: https://github.com/ocbwoy3/tuxstrap
-		`.replaceAll("\t","").replaceAll("\\t","\t"))
+		`
+				.replaceAll("\t", "")
+				.replaceAll("\\t", "\t")
+		);
 		if (
 			process.argv0.endsWith("bin/tuxstrap") ||
 			process.argv0 === "/run/current-system/sw/bin/tuxstrap"
 		) {
 			console.log(
-				`TuxStrap ${TUXSTRAP_VERSION}, libocbwoy3 ${_libocbwoy3Version}, Bun ${Bun.version_with_sha}, ${process.argv0.includes("/nix/store") ? "Nix build" : "compiled"}`
+				`TuxStrap ${TUXSTRAP_VERSION}, libocbwoy3 ${_libocbwoy3Version}, Bun ${
+					Bun.version_with_sha
+				}, ${
+					process.argv0.includes("/nix/store")
+						? "Nix build"
+						: "compiled"
+				}`
 			);
 		}
 		process.exit(0);
@@ -57,11 +74,14 @@ import { eventCollector } from "./api/EventCollector";
 
 	if (listPluginsSwitch) {
 		for (const plugin of getPluginInfos()) {
-			console.log(`${plugin.name} (${plugin.id})${plugin.forceEnable ? " [default]" : ""}`)
+			console.log(
+				`${plugin.name} (${plugin.id})${
+					plugin.forceEnable ? " [default]" : ""
+				}`
+			);
 		}
 		process.exit(0);
 	}
-
 })();
 
 eventCollector.on("BLOXSTRAP_RPC", ({ type, data }) => {
@@ -118,20 +138,29 @@ eventCollector.on("BLOXSTRAP_RPC", ({ type, data }) => {
 		process.argv0 === "/run/current-system/sw/bin/tuxstrap"
 	) {
 		console.log(
-			`Using ${process.argv0.includes("/nix/store") ? "Nix" : "built"} version of TuxStrap!! ${process.argv0}`
+			`Using ${
+				process.argv0.includes("/nix/store") ? "Nix" : "built"
+			} version of TuxStrap!! ${process.argv0}`
 		);
 	}
 
 	// await createWaylandContext(); <-- we need c for this shit
 	// await copyToClipboard("haha funny"); <-- and this
 
-	const pluginsEnable = process.argv.filter(
-		(a) => a.startsWith("+") && !a.includes("-") && !a.includes(" ")
-	).map(a=>a.replace(/^\+/,""));
-	const pluginsDisable = process.argv.filter(
-		(a) => a.startsWith("-") && !a.startsWith("--") && !a.includes("+") && !a.includes(" ")
-	).map(a=>a.replace(/^\-\-/,""));
-	
+	const pluginsEnable = process.argv
+		.filter(
+			(a) => a.startsWith("+") && !a.includes("-") && !a.includes(" ")
+		)
+		.map((a) => a.replace(/^\+/, ""));
+	const pluginsDisable = process.argv
+		.filter(
+			(a) =>
+				a.startsWith("-") &&
+				!a.startsWith("--") &&
+				!a.includes("+") &&
+				!a.includes(" ")
+		)
+		.map((a) => a.replace(/^\-\-/, ""));
 
 	await registerPluginsAllFinal(pluginsEnable, pluginsDisable);
 
