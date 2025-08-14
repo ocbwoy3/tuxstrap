@@ -106,7 +106,7 @@ registerPlugin(
 	{
 		name: "Unstable FFlags",
 		id: "unstable",
-		forceEnable: true,
+		forceEnable: false,
 		configPrio: -9e9
 	},
 	async (plugin) => {
