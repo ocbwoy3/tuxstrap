@@ -23,7 +23,7 @@ type PluginMeta = {
 export class Plugin {
 	public name: string;
 	public id: string;
-	public force: boolean;
+	public forceEnable: boolean;
 	public configPrio: number;
 
 	private runtimeSetFFlags: fflagList = {};
@@ -32,7 +32,7 @@ export class Plugin {
 	constructor({ name, id, forceEnable, configPrio }: PluginMeta) {
 		this.name = name;
 		this.id = id;
-		this.force = forceEnable ?? false;
+		this.forceEnable = forceEnable ?? false;
 		this.configPrio = configPrio ?? 0;
 		this.runtimeSetFFlags = {};
 	}
@@ -111,14 +111,17 @@ export class Plugin {
 }
 
 let pluginsRegistered: Plugin[] = [];
-let pluginsRegisterFuncs: (() => void)[] = [];
+let pluginMetadatas: PluginMeta[] = [];
+let pluginsRegisterFuncs: ((forceEnable: string[], forceDisable: string[]) => void)[] = [];
 
 export function registerPlugin(
 	details: PluginMeta,
 	initFunc: (plugin: Plugin) => void
 ) {
-	pluginsRegisterFuncs.push(async () => {
-		if (!details.forceEnable) return;
+	pluginMetadatas.push(details);
+	pluginsRegisterFuncs.push(async (forceEnable, forceDisable) => {
+		if (!details.forceEnable && !forceEnable.includes(details.id)) return;
+		if (forceDisable.includes(details.id)) return;
 		if (!details.configPrio) details.configPrio = 0;
 		while (true) {
 			if (
@@ -145,12 +148,16 @@ export function registerPlugin(
 	});
 }
 
-export async function registerPluginsAllFinal() {
+export async function registerPluginsAllFinal(forceEnable: string[], forceDisable: string[]) {
 	for (const f of pluginsRegisterFuncs) {
-		await f();
+		await f(forceEnable, forceDisable);
 	}
 }
 
 export function getPlugins(): Plugin[] {
 	return pluginsRegistered;
+}
+
+export function getPluginInfos(): PluginMeta[] {
+	return pluginMetadatas;
 }

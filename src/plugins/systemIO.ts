@@ -6,7 +6,7 @@ import { getGameDetails } from "../api/roblox/GameInfo";
 registerPlugin(
 	{
 		name: "System Clipboard & D-Bus",
-		id: "tuxstrap-clip-dbus",
+		id: "dbus",
 		forceEnable: true,
 		configPrio: -9e9
 	},
