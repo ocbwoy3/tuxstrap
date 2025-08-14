@@ -92,7 +92,8 @@ registerPlugin(
 			DFIntAnimationLodFacsDistanceMax: 0,
 			DFIntAnimationLodFacsVisibilityDenominator: 0,
 			FIntViewportFrameMaxSize: 0,
-			FFlagUseUnifiedRenderStepped: false
+			FFlagUseUnifiedRenderStepped: false,
+			DFIntMaxFrameBufferSize: 4
 		};
 
 		for (const [fflag, value] of Object.entries(fflags)) {
@@ -114,8 +115,7 @@ registerPlugin(
 			FFlagOptimizeNetwork: true,
 			FFlagOptimizeNetworkTransport: true,
 			DFIntConnectionMTUSize: 900,
-			FFlagEnableNewInput: true,
-			DFIntMaxFrameBufferSize: 4
+			FFlagEnableNewInput: true
 		};
 
 		for (const [fflag, value] of Object.entries(fflags)) {
