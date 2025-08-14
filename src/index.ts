@@ -1,11 +1,3 @@
-const firstRobloxURLArgX = process.argv.find(
-	(a) => a === "tuxstrap://gendesktoproblox"
-);
-
-if (!firstRobloxURLArgX) {
-	console.log(process.argv, process.argv0)
-}
-
 import { $ } from "bun";
 import { SOBER_APPID, TUXSTRAP_VERSION } from "./api/constants";
 import {
