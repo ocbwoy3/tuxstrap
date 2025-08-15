@@ -1,5 +1,5 @@
 import { $ } from "bun";
-import { SOBER_APPID, TUXSTRAP_VERSION } from "./api/constants";
+import { isCompiled, isNixOS, SOBER_APPID, TUXSTRAP_VERSION } from "./api/constants";
 import {
 	_libocbwoy3Version,
 	libocbwoy3Greet,
@@ -51,14 +51,13 @@ import { eventCollector } from "./api/EventCollector";
 				.replaceAll("\\t", "\t")
 		);
 		if (
-			process.argv0.endsWith("bin/tuxstrap") ||
-			process.argv0 === "/run/current-system/sw/bin/tuxstrap"
+			isCompiled
 		) {
 			console.log(
 				`TuxStrap ${TUXSTRAP_VERSION}, libocbwoy3 ${_libocbwoy3Version}, Bun ${
 					Bun.version_with_sha
 				}, ${
-					process.argv0.includes("/nix/store")
+					isNixOS
 						? "Nix build"
 						: "compiled"
 				}`
@@ -129,12 +128,11 @@ eventCollector.on("BLOXSTRAP_RPC", ({ type, data }) => {
 	libocbwoy3Greet();
 
 	if (
-		process.argv0.endsWith("bin/tuxstrap") ||
-		process.argv0 === "/run/current-system/sw/bin/tuxstrap"
+		isCompiled
 	) {
 		console.log(
 			`Using ${
-				process.argv0.includes("/nix/store") ? "Nix" : "built"
+				isNixOS ? "Nix" : "built"
 			} version of TuxStrap!! ${process.argv0}`
 		);
 	}
