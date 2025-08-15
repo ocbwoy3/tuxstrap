@@ -22,6 +22,15 @@ import { eventCollector } from "./api/EventCollector";
 	const listPluginsSwitch = process.argv.find((a) => a === "--list-plugins");
 
 	const helpSwitch = process.argv.find((a) => a === "-h" || a === "--help");
+	const debugSwitch = process.argv.find((a) => a === "--debug" );
+
+	if (debugSwitch) {
+		console.log("argv0", process.argv0);
+		console.log("argv", process.argv);
+		console.log("isCompiled", isCompiled);
+		console.log("isNixOS", isNixOS);
+		process.exit(0);
+	}
 
 	if (helpSwitch) {
 		console.log(
