@@ -1,5 +1,5 @@
 import { $ } from "bun";
-import { isCompiled, isNixOS, SOBER_APPID, TUXSTRAP_VERSION } from "./api/constants";
+import { isCompiled, isNixOS, SOBER_APPID, tsExecutablePath, TUXSTRAP_VERSION } from "./api/constants";
 import {
 	_libocbwoy3Version,
 	libocbwoy3Greet,
@@ -29,6 +29,7 @@ import { eventCollector } from "./api/EventCollector";
 		console.log("argv", process.argv);
 		console.log("isCompiled", isCompiled);
 		console.log("isNixOS", isNixOS);
+		console.log("isCompiled", tsExecutablePath);
 		process.exit(0);
 	}
 

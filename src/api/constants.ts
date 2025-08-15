@@ -15,5 +15,7 @@ export const ROBLOX_COOKIES_FILE = `${SOBER_PATH}/data/sober/cookies`;
 export const DISCORD_APPID = "1005469189907173486";
 export const SMALL_IMAGE_KEY = "roblox";
 
-export const isCompiled = process.argv0.includes("/bin/")
-export const isNixOS = isCompiled && ((process.argv0 === "/run/current-system/sw/bin/tuxstrap") || process.argv0.includes("/nix/store"))
+export const tsExecutablePath = Bun.which("tuxstrap")
+
+export const isCompiled = process.argv0.includes("/bin/") || !!tsExecutablePath
+export const isNixOS = isCompiled && tsExecutablePath && ((tsExecutablePath === "/run/current-system/sw/bin/tuxstrap") || tsExecutablePath.includes("/nix/store"))
